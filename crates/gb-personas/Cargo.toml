@@ -1,0 +1,19 @@
+[package]
+name = "gb-personas"
+version = "0.1.0"
+edition = "2021"
+description = "✨💖 Theatrical personas for GB (G3-Glitter-Bomb), a fork of G3 dialectical autocoding 💖✨"
+license = "MIT"
+keywords = ["llm", "agents", "personas", "ai", "dialectical", "autocoding"]
+categories = ["development-tools", "command-line-utilities"]
+repository = "https://github.com/bradheitmann/gb"
+
+# GB is a fork of G3 by Dhanji R. Prasanna (https://github.com/dhanji/g3)
+# See: Block AI Research - Adversarial Cooperation in Code Synthesis
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4"

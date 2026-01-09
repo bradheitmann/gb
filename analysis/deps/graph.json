@@ -1,0 +1,799 @@
+{
+  "metadata": {
+    "generated_at": "2025-01-07",
+    "tool": "structural-analysis-agent",
+    "version": "1.0",
+    "workspace_root": ".",
+    "extraction_method": "static-import-parsing"
+  },
+  "crates": {
+    "g3": {
+      "path": ".",
+      "type": "binary",
+      "files": ["src/main.rs", "examples/verify_message_id.rs"]
+    },
+    "g3-cli": {
+      "path": "crates/g3-cli",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "src/filter_json.rs",
+        "src/machine_ui_writer.rs",
+        "src/retro_tui.rs",
+        "src/simple_output.rs",
+        "src/theme.rs",
+        "src/tui.rs",
+        "src/ui_writer_impl.rs",
+        "tests/cli_integration_test.rs",
+        "tests/coach_feedback_extraction_test.rs",
+        "tests/filter_json_test.rs"
+      ]
+    },
+    "g3-core": {
+      "path": "crates/g3-core",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "src/background_process.rs",
+        "src/code_search/mod.rs",
+        "src/code_search/searcher.rs",
+        "src/context_window.rs",
+        "src/error_handling.rs",
+        "src/error_handling_test.rs",
+        "src/feedback_extraction.rs",
+        "src/paths.rs",
+        "src/project.rs",
+        "src/prompts.rs",
+        "src/provider_config.rs",
+        "src/retry.rs",
+        "src/session_continuation.rs",
+        "src/streaming_parser.rs",
+        "src/take_screenshot_test.rs",
+        "src/task_result.rs",
+        "src/task_result_comprehensive_tests.rs",
+        "src/task_result_tests.rs",
+        "src/tilde_expansion_tests.rs",
+        "src/tool_definitions.rs",
+        "src/tool_dispatch.rs",
+        "src/tools/executor.rs",
+        "src/tools/file_ops.rs",
+        "src/tools/misc.rs",
+        "src/tools/mod.rs",
+        "src/tools/shell.rs",
+        "src/tools/todo.rs",
+        "src/tools/webdriver.rs",
+        "src/ui_writer.rs",
+        "src/utils.rs",
+        "src/webdriver_session.rs",
+        "examples/inspect_ast.rs",
+        "examples/inspect_python_ast.rs",
+        "examples/test_python_query.rs",
+        "tests/auto_continue_test.rs",
+        "tests/background_process_demo_test.rs",
+        "tests/code_search_test.rs",
+        "tests/duplicate_detection_test.rs",
+        "tests/final_output_todo_check_test.rs",
+        "tests/incomplete_tool_call_test.rs",
+        "tests/read_image_test.rs",
+        "tests/streaming_parser_test.rs",
+        "tests/test_agent_session_id.rs",
+        "tests/test_context_thinning.rs",
+        "tests/test_preflight_max_tokens.rs",
+        "tests/test_reset_with_summary.rs",
+        "tests/test_session_continuation.rs",
+        "tests/test_system_message_loading.rs",
+        "tests/test_todo_completion.rs",
+        "tests/test_todo_context_thinning.rs",
+        "tests/test_todo_persistence.rs",
+        "tests/test_token_counting.rs",
+        "tests/todo_staleness_test.rs",
+        "tests/tool_execution_test.rs"
+      ]
+    },
+    "g3-config": {
+      "path": "crates/g3-config",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "src/tests.rs",
+        "tests/test_multiple_tool_calls.rs"
+      ]
+    },
+    "g3-providers": {
+      "path": "crates/g3-providers",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "src/anthropic.rs",
+        "src/databricks.rs",
+        "src/embedded.rs",
+        "src/oauth.rs",
+        "src/openai.rs",
+        "tests/cache_control_error_regression_test.rs",
+        "tests/cache_control_integration_test.rs",
+        "tests/message_serialization_test.rs"
+      ]
+    },
+    "g3-planner": {
+      "path": "crates/g3-planner",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "src/code_explore.rs",
+        "src/git.rs",
+        "src/history.rs",
+        "src/llm.rs",
+        "src/planner.rs",
+        "src/prompts.rs",
+        "src/state.rs",
+        "tests/commit_history_ordering_test.rs",
+        "tests/logging_test.rs",
+        "tests/planner_test.rs",
+        "tests/retry_feedback_test.rs"
+      ]
+    },
+    "g3-execution": {
+      "path": "crates/g3-execution",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "examples/setup_coverage_tools.rs"
+      ]
+    },
+    "g3-computer-control": {
+      "path": "crates/g3-computer-control",
+      "type": "library",
+      "files": [
+        "build.rs",
+        "src/lib.rs",
+        "src/types.rs",
+        "src/macax/mod.rs",
+        "src/macax/controller.rs",
+        "src/macax/tests.rs",
+        "src/ocr/mod.rs",
+        "src/ocr/tesseract.rs",
+        "src/ocr/vision.rs",
+        "src/platform/mod.rs",
+        "src/platform/linux.rs",
+        "src/platform/macos.rs",
+        "src/platform/macos_window_matching_test.rs",
+        "src/platform/windows.rs",
+        "src/webdriver/mod.rs",
+        "src/webdriver/chrome.rs",
+        "src/webdriver/safari.rs",
+        "examples/debug_screenshot.rs",
+        "examples/list_windows.rs",
+        "examples/macax_demo.rs",
+        "examples/safari_demo.rs",
+        "examples/test_permission_prompt.rs",
+        "examples/test_screencapture_direct.rs",
+        "examples/test_screenshot_fix.rs",
+        "examples/test_type_text.rs",
+        "examples/test_vision.rs",
+        "examples/test_window_capture.rs",
+        "tests/integration_test.rs"
+      ]
+    },
+    "g3-console": {
+      "path": "crates/g3-console",
+      "type": "binary+library",
+      "files": [
+        "src/lib.rs",
+        "src/main.rs",
+        "src/launch.rs",
+        "src/logs.rs",
+        "src/api/mod.rs",
+        "src/api/control.rs",
+        "src/api/instances.rs",
+        "src/api/logs.rs",
+        "src/api/state.rs",
+        "src/models/mod.rs",
+        "src/models/instance.rs",
+        "src/models/message.rs",
+        "src/process/mod.rs",
+        "src/process/controller.rs",
+        "src/process/detector.rs",
+        "examples/debug_detector.rs",
+        "examples/test_api.rs",
+        "examples/test_detector.rs"
+      ]
+    },
+    "g3-ensembles": {
+      "path": "crates/g3-ensembles",
+      "type": "library",
+      "files": [
+        "src/lib.rs",
+        "src/flock.rs",
+        "src/status.rs",
+        "src/tests.rs",
+        "tests/integration_tests.rs"
+      ]
+    }
+  },
+  "crate_dependencies": [
+    {
+      "from": "g3",
+      "to": "g3-cli",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-cli = { path = \"crates/g3-cli\" }"
+    },
+    {
+      "from": "g3",
+      "to": "g3-providers",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-providers = { path = \"crates/g3-providers\" }"
+    },
+    {
+      "from": "g3-cli",
+      "to": "g3-core",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-core = { path = \"../g3-core\" }"
+    },
+    {
+      "from": "g3-cli",
+      "to": "g3-config",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-config = { path = \"../g3-config\" }"
+    },
+    {
+      "from": "g3-cli",
+      "to": "g3-planner",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-planner = { path = \"../g3-planner\" }"
+    },
+    {
+      "from": "g3-cli",
+      "to": "g3-providers",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-providers = { path = \"../g3-providers\" }"
+    },
+    {
+      "from": "g3-cli",
+      "to": "g3-ensembles",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-ensembles = { path = \"../g3-ensembles\" }"
+    },
+    {
+      "from": "g3-core",
+      "to": "g3-providers",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-providers = { path = \"../g3-providers\" }"
+    },
+    {
+      "from": "g3-core",
+      "to": "g3-config",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-config = { path = \"../g3-config\" }"
+    },
+    {
+      "from": "g3-core",
+      "to": "g3-execution",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-execution = { path = \"../g3-execution\" }"
+    },
+    {
+      "from": "g3-core",
+      "to": "g3-computer-control",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-computer-control = { path = \"../g3-computer-control\" }"
+    },
+    {
+      "from": "g3-planner",
+      "to": "g3-providers",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-providers = { path = \"../g3-providers\" }"
+    },
+    {
+      "from": "g3-planner",
+      "to": "g3-core",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-core = { path = \"../g3-core\" }"
+    },
+    {
+      "from": "g3-planner",
+      "to": "g3-config",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-config = { path = \"../g3-config\" }"
+    },
+    {
+      "from": "g3-ensembles",
+      "to": "g3-core",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-core = { path = \"../g3-core\" }"
+    },
+    {
+      "from": "g3-ensembles",
+      "to": "g3-config",
+      "type": "path",
+      "evidence": "Cargo.toml: g3-config = { path = \"../g3-config\" }"
+    }
+  ],
+  "file_dependencies": [
+    {
+      "from": "src/main.rs",
+      "to": "crates/g3-cli/src/lib.rs",
+      "import": "use g3_cli::run",
+      "type": "crate-import"
+    },
+    {
+      "from": "examples/verify_message_id.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::{Message, MessageRole}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-cli/src/lib.rs",
+      "to": "crates/g3-config/src/lib.rs",
+      "import": "use g3_config::Config",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-cli/src/lib.rs",
+      "to": "crates/g3-core/src/lib.rs",
+      "import": "use g3_core::{project::Project, ui_writer::UiWriter, Agent, DiscoveryOptions}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-cli/src/lib.rs",
+      "to": "crates/g3-core/src/error_handling.rs",
+      "import": "use g3_core::error_handling::{classify_error, ErrorType, RecoverableError}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-cli/src/ui_writer_impl.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use g3_core::ui_writer::UiWriter",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-cli/src/ui_writer_impl.rs",
+      "to": "crates/g3-cli/src/filter_json.rs",
+      "import": "use crate::filter_json::{filter_json_tool_calls, reset_json_tool_state}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-cli/src/machine_ui_writer.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use g3_core::ui_writer::UiWriter",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-cli/src/retro_tui.rs",
+      "to": "crates/g3-cli/src/theme.rs",
+      "import": "use crate::theme::ColorTheme",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/lib.rs",
+      "to": "crates/g3-config/src/lib.rs",
+      "import": "use g3_config::Config",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/lib.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::{CacheControl, CompletionRequest, Message, MessageRole, ProviderRegistry}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/lib.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/context_window.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::{Message, MessageRole, Usage}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/context_window.rs",
+      "to": "crates/g3-core/src/paths.rs",
+      "import": "use crate::paths::get_thinned_dir",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/streaming_parser.rs",
+      "to": "crates/g3-core/src/lib.rs",
+      "import": "use crate::ToolCall",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tool_dispatch.rs",
+      "to": "crates/g3-core/src/tools/executor.rs",
+      "import": "use crate::tools::executor::ToolContext",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tool_dispatch.rs",
+      "to": "crates/g3-core/src/tools/mod.rs",
+      "import": "use crate::tools::{file_ops, misc, shell, todo, webdriver}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tool_dispatch.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/executor.rs",
+      "to": "crates/g3-core/src/background_process.rs",
+      "import": "use crate::background_process::BackgroundProcessManager",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/executor.rs",
+      "to": "crates/g3-core/src/paths.rs",
+      "import": "use crate::paths::{ensure_session_dir, get_session_todo_path, get_todo_path}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/executor.rs",
+      "to": "crates/g3-core/src/webdriver_session.rs",
+      "import": "use crate::webdriver_session::WebDriverSession",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/executor.rs",
+      "to": "crates/g3-config/src/lib.rs",
+      "import": "use g3_config::Config",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/tools/file_ops.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/file_ops.rs",
+      "to": "crates/g3-core/src/utils.rs",
+      "import": "use crate::utils::resolve_path_with_unicode_fallback",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/shell.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/shell.rs",
+      "to": "crates/g3-core/src/utils.rs",
+      "import": "use crate::utils::resolve_paths_in_shell_command",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/misc.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/todo.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/webdriver.rs",
+      "to": "crates/g3-computer-control/src/lib.rs",
+      "import": "use g3_computer_control::WebDriverController",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/tools/webdriver.rs",
+      "to": "crates/g3-core/src/webdriver_session.rs",
+      "import": "use crate::webdriver_session::WebDriverSession",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/tools/webdriver.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/webdriver_session.rs",
+      "to": "crates/g3-computer-control/src/lib.rs",
+      "import": "use g3_computer_control::{ChromeDriver, SafariDriver, WebDriverController, WebElement}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/feedback_extraction.rs",
+      "to": "crates/g3-core/src/lib.rs",
+      "import": "use crate::{logs_dir, Agent, TaskResult}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/feedback_extraction.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/task_result.rs",
+      "to": "crates/g3-core/src/context_window.rs",
+      "import": "use crate::ContextWindow",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/task_result_comprehensive_tests.rs",
+      "to": "crates/g3-core/src/context_window.rs",
+      "import": "use crate::{ContextWindow, TaskResult}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/task_result_comprehensive_tests.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::{Message, MessageRole}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/tool_definitions.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::Tool",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/provider_config.rs",
+      "to": "crates/g3-config/src/lib.rs",
+      "import": "use g3_config::Config",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-core/src/retry.rs",
+      "to": "crates/g3-core/src/error_handling.rs",
+      "import": "use crate::error_handling::{calculate_retry_delay, classify_error, ErrorType, RecoverableError}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/retry.rs",
+      "to": "crates/g3-core/src/ui_writer.rs",
+      "import": "use crate::ui_writer::UiWriter",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-core/src/retry.rs",
+      "to": "crates/g3-core/src/lib.rs",
+      "import": "use crate::{Agent, DiscoveryOptions, TaskResult}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-providers/src/anthropic.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use crate::{...}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-providers/src/databricks.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use crate::{...}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-providers/src/openai.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use crate::{...}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-providers/src/embedded.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use crate::{...}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-planner/src/lib.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::{CompletionRequest, LLMProvider, Message, MessageRole}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-planner/src/llm.rs",
+      "to": "crates/g3-config/src/lib.rs",
+      "import": "use g3_config::Config",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-planner/src/llm.rs",
+      "to": "crates/g3-core/src/project.rs",
+      "import": "use g3_core::project::Project",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-planner/src/llm.rs",
+      "to": "crates/g3-core/src/lib.rs",
+      "import": "use g3_core::Agent",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-planner/src/llm.rs",
+      "to": "crates/g3-core/src/error_handling.rs",
+      "import": "use g3_core::error_handling::{classify_error, ErrorType}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-planner/src/llm.rs",
+      "to": "crates/g3-providers/src/lib.rs",
+      "import": "use g3_providers::{CompletionRequest, LLMProvider, Message, MessageRole}",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-planner/src/llm.rs",
+      "to": "crates/g3-planner/src/prompts.rs",
+      "import": "use crate::prompts",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-planner/src/planner.rs",
+      "to": "crates/g3-planner/src/git.rs",
+      "import": "use crate::git",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-planner/src/planner.rs",
+      "to": "crates/g3-planner/src/history.rs",
+      "import": "use crate::history",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-planner/src/planner.rs",
+      "to": "crates/g3-planner/src/llm.rs",
+      "import": "use crate::llm",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-planner/src/planner.rs",
+      "to": "crates/g3-planner/src/state.rs",
+      "import": "use crate::state::{...}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-ensembles/src/flock.rs",
+      "to": "crates/g3-config/src/lib.rs",
+      "import": "use g3_config::Config",
+      "type": "crate-import"
+    },
+    {
+      "from": "crates/g3-ensembles/src/flock.rs",
+      "to": "crates/g3-ensembles/src/status.rs",
+      "import": "use crate::status::{FlockStatus, SegmentState, SegmentStatus}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/platform/macos.rs",
+      "to": "crates/g3-computer-control/src/ocr/mod.rs",
+      "import": "use crate::ocr::{DefaultOCR, OCREngine}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/platform/macos.rs",
+      "to": "crates/g3-computer-control/src/types.rs",
+      "import": "use crate::{...}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/platform/linux.rs",
+      "to": "crates/g3-computer-control/src/types.rs",
+      "import": "use crate::{types::*, ComputerController}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/platform/windows.rs",
+      "to": "crates/g3-computer-control/src/types.rs",
+      "import": "use crate::{types::*, ComputerController}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/ocr/vision.rs",
+      "to": "crates/g3-computer-control/src/types.rs",
+      "import": "use crate::types::TextLocation",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/ocr/tesseract.rs",
+      "to": "crates/g3-computer-control/src/types.rs",
+      "import": "use crate::types::TextLocation",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-computer-control/src/ocr/mod.rs",
+      "to": "crates/g3-computer-control/src/types.rs",
+      "import": "use crate::types::TextLocation",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/main.rs",
+      "to": "crates/g3-console/src/api/mod.rs",
+      "import": "use g3_console::api",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/main.rs",
+      "to": "crates/g3-console/src/launch.rs",
+      "import": "use g3_console::launch",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/main.rs",
+      "to": "crates/g3-console/src/process/mod.rs",
+      "import": "use g3_console::process",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/instances.rs",
+      "to": "crates/g3-console/src/logs.rs",
+      "import": "use crate::logs::{LogParser, StatsAggregator}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/instances.rs",
+      "to": "crates/g3-console/src/models/mod.rs",
+      "import": "use crate::models::*",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/instances.rs",
+      "to": "crates/g3-console/src/process/detector.rs",
+      "import": "use crate::process::ProcessDetector",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/control.rs",
+      "to": "crates/g3-console/src/models/mod.rs",
+      "import": "use crate::models::*",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/control.rs",
+      "to": "crates/g3-console/src/process/controller.rs",
+      "import": "use crate::process::ProcessController",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/state.rs",
+      "to": "crates/g3-console/src/launch.rs",
+      "import": "use crate::launch::ConsoleState",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/logs.rs",
+      "to": "crates/g3-console/src/logs.rs",
+      "import": "use crate::logs::LogParser",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/api/logs.rs",
+      "to": "crates/g3-console/src/process/detector.rs",
+      "import": "use crate::process::ProcessDetector",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/logs.rs",
+      "to": "crates/g3-console/src/models/mod.rs",
+      "import": "use crate::models::{InstanceStats, TurnInfo}",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/process/controller.rs",
+      "to": "crates/g3-console/src/models/mod.rs",
+      "import": "use crate::models::LaunchParams",
+      "type": "crate-internal"
+    },
+    {
+      "from": "crates/g3-console/src/process/detector.rs",
+      "to": "crates/g3-console/src/models/mod.rs",
+      "import": "use crate::models::{ExecutionMethod, Instance, InstanceStatus, InstanceType}",
+      "type": "crate-internal"
+    }
+  ],
+  "statistics": {
+    "total_crates": 10,
+    "total_files": 139,
+    "crate_dependency_edges": 16,
+    "file_dependency_edges": 72
+  }
+}

@@ -1,0 +1,62 @@
+[workspace]
+members = [
+    "crates/g3-cli",
+    "crates/g3-core",
+    "crates/g3-planner",
+    "crates/g3-providers",
+    "crates/g3-config",
+    "crates/g3-execution",
+    "crates/g3-computer-control",
+    "crates/g3-ensembles",
+    "crates/gb-personas"
+]
+resolver = "2"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+# HTTP client
+reqwest = { version = "0.11", features = ["json", "stream"] }
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+# CLI
+clap = { version = "4.0", features = ["derive"] }
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+# Configuration
+config = "0.14"
+# Utilities
+uuid = { version = "1.0", features = ["v4"] }
+
+[package]
+name = "gb"
+version = "0.1.0"
+edition = "2021"
+authors = ["GB Team", "G3 Team"]
+description = "✨💖 GB (G3-Glitter-Bomb) - Dialectical autocoding with MAXIMUM GLITTER 💖✨"
+license = "MIT"
+repository = "https://github.com/bradheitmann/gb"
+
+# GB is a fork of G3 by Dhanji R. Prasanna (https://github.com/dhanji/g3)
+# Based on Block AI Research - Adversarial Cooperation in Code Synthesis
+
+[dependencies]
+g3-cli = { path = "crates/g3-cli" }
+gb-personas = { path = "crates/gb-personas" }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+g3-providers = { path = "crates/g3-providers" }
+serde_json = { workspace = true }
+
+[[bin]]
+name = "gb"
+path = "src/main.rs"
+
+[[example]]
+name = "verify_message_id"
+path = "examples/verify_message_id.rs"
