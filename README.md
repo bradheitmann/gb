@@ -216,7 +216,15 @@ Supporting them: six specialist agents, each with their own relationship to Gen-
 
 ## 🚀 INSTALLATION
 
-### From Source (Recommended)
+### Recommended: install.sh (Handles dylib properly)
+```bash
+git clone https://github.com/bradheitmann/gb.git
+cd gb
+./install.sh
+```
+This installs `gb` to `~/.cargo/bin` and properly handles the VisionBridge dylib for computer control features.
+
+### From Source (Manual)
 ```bash
 git clone https://github.com/bradheitmann/gb.git
 cd gb
@@ -227,6 +235,8 @@ cargo build --release
 ### From crates.io (Coming Soon)
 ```bash
 cargo install gb
+# Note: You may need to manually copy libVisionBridge.dylib on macOS
+# Use install.sh instead for seamless installation
 ```
 
 ---
