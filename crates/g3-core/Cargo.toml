@@ -47,7 +47,7 @@ const_format = "0.2"
 base64 = "0.22.1"
 
 [features]
-default = []
+default = ["computer-control"]
 computer-control = ["g3-computer-control"]
 
 [dev-dependencies]

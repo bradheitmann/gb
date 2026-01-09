@@ -5,7 +5,7 @@ edition = "2021"
 description = "CLI interface for G3 AI coding agent"
 
 [features]
-default = []
+default = ["computer-control"]
 computer-control = ["g3-core/computer-control"]
 
 [dependencies]
