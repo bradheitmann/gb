@@ -214,7 +214,69 @@ Supporting them: six specialist agents, each with their own relationship to Gen-
 
 ---
 
-## 🚀 QUICK START
+## 🚀 INSTALLATION
+
+### From Source (Recommended)
+```bash
+git clone https://github.com/bradheitmann/gb.git
+cd gb
+cargo build --release
+./target/release/gb --help
+```
+
+### From crates.io (Coming Soon)
+```bash
+cargo install gb
+```
+
+---
+
+## 💻 USAGE
+
+### Interactive Mode (Default)
+```bash
+gb
+```
+Opens an interactive TUI with the **Glitter theme** (pink by default, because obviously).
+
+### Autonomous Mode
+```bash
+gb --autonomous --requirements "Build a REST API for user management" --max-turns 5
+```
+Runs the full Regina/Gretchen dialectical loop autonomously.
+
+### Flock Mode (Multi-Agent Orchestration)
+```bash
+gb --flock --requirements requirements.md
+```
+Assigns specialist personas to segments based on keywords:
+- Security keywords → 😐 Daria
+- Bug/debug keywords → 🔮 Phoebe
+- Refactor keywords → 👗 Rachel
+- Frontend keywords → ✨ Maxine
+- Architecture keywords → 🧹 Monica
+- Exploration keywords → 👀 FleaB
+- Default → 💖 Gretchen
+
+### CLI Commands (Inside Interactive Mode)
+| Command | Description |
+|---------|-------------|
+| `/personas` | List all 8 personas with slang levels |
+| `/slay` | Show stats with MAXIMUM GLITTER decoration ✨ |
+| `/fetch` | Mean Girls easter egg 💅 |
+| `/glitter` | Info about glitter mode |
+| `/help` | Show all commands |
+
+### Theme Options
+```bash
+gb --theme glitter    # Pink (default) 💖
+gb --theme retro      # G3's original green
+gb --theme dracula    # Dark purple
+```
+
+---
+
+## 🎯 QUICK START CONFIGURATIONS
 
 ### Full Stack Configuration
 ```toml
@@ -336,6 +398,46 @@ gb-fork/
 > **"Could this architecture BE any more disorganized?!"** — Monica
 
 > **"*looks directly at you* Right. Let's do this."** — FleaB
+
+---
+
+## 🎬 REAL OUTPUT EXAMPLE
+
+Here's what happens when you ask GB to create an email validator:
+
+**Gretchen (Player) starts:**
+```
+OMG hi bestie! 💖 I'm SO ready to implement this email validator!
+Let me make this FETCH happen! ✨
+
+Okay so I need to create a Rust project with regex validation.
+I'm literally going to try SO hard on this, no cap! 💅
+```
+
+**When tests fail:**
+```
+OH NO 😭 The tests failed! I'm literally crying right now!
+Let me see what went wrong...
+
+OH I see the problem! 😭 The regex is accepting "user@com"
+when it should need a dot! Let me fix this fr fr!
+```
+
+**When tests pass:**
+```
+YESSS! That worked! Now let me run the tests again! 💖✨
+
+WE MADE FETCH HAPPEN!!! 👑✨💖
+```
+
+**Regina (Coach) reviews:**
+```
+Let me check if you can sit with us today. 👑
+
+IMPLEMENTATION_APPROVED
+```
+
+The personas aren't just cosmetic — they create an engaging feedback loop that makes the development process genuinely entertaining while maintaining the rigorous quality standards of G3's dialectical architecture.
 
 ---
 
