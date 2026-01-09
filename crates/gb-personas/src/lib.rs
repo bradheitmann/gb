@@ -197,7 +197,10 @@ pub enum Language {
 }
 
 /// Configuration for persona activation
+///
+/// Supports partial deserialization - missing fields use defaults.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
 pub struct PersonaConfig {
     /// The agent's role in the dialectical loop
     pub role: AgentRole,
@@ -1158,15 +1161,127 @@ mod tests {
 
     #[test]
     fn test_persona_config_partial_deserialization() {
-        // Test that PersonaConfig can be deserialized with only required fields
-        // (relies on Default trait for missing fields)
+        // Test that PersonaConfig can be deserialized with partial fields
+        // Missing fields should use Default values thanks to #[serde(default)]
+
+        // Only role specified
         let minimal_json = r#"{"role": "coach"}"#;
-        let result: Result<PersonaConfig, _> = serde_json::from_str(minimal_json);
-        // Note: This will fail if serde doesn't have default for missing fields
-        // If this test fails, PersonaConfig needs #[serde(default)] on the struct
-        if let Ok(config) = result {
-            assert_eq!(config.role, AgentRole::Coach);
+        let config: PersonaConfig = serde_json::from_str(minimal_json)
+            .expect("Partial deserialization should work with #[serde(default)]");
+        assert_eq!(config.role, AgentRole::Coach);
+        assert_eq!(config.language, Language::default());
+        assert!(!config.glitter_mode); // default is false
+        assert_eq!(config.emoji_density, EmojiDensity::default());
+        assert!(config.additional_context.is_none());
+
+        // Empty JSON should use all defaults
+        let empty_json = r#"{}"#;
+        let config: PersonaConfig = serde_json::from_str(empty_json)
+            .expect("Empty JSON should deserialize to defaults");
+        assert_eq!(config.role, AgentRole::default());
+
+        // Partial with glitter_mode
+        let partial_json = r#"{"glitter_mode": true, "language": "rust"}"#;
+        let config: PersonaConfig = serde_json::from_str(partial_json)
+            .expect("Partial fields should work");
+        assert!(config.glitter_mode);
+        assert_eq!(config.language, Language::Rust);
+        assert_eq!(config.role, AgentRole::default()); // missing field uses default
+    }
+
+    // === ADDITIONAL COVERAGE TESTS ===
+    // Tests identified as missing from the 7-agent bug hunt
+
+    #[test]
+    fn test_persona_custom_serialization() {
+        // Persona::Custom is excluded from Persona::all() but should still serialize
+        let json = serde_json::to_string(&Persona::Custom)
+            .expect("Custom should serialize");
+        assert_eq!(json, "\"custom\"");
+
+        let deserialized: Persona = serde_json::from_str(&json)
+            .expect("Custom should deserialize");
+        assert_eq!(deserialized, Persona::Custom);
+
+        // Custom has persona data even though it's non-functional
+        let data = get_persona_data(Persona::Custom);
+        assert!(!data.display_name.is_empty());
+        assert!(!data.emoji_favorites.is_empty());
+    }
+
+    #[test]
+    fn test_unicode_in_additional_context() {
+        // Verify Unicode characters work in additional_context
+        let config = PersonaConfig {
+            additional_context: Some("Unicode: 日本語 🎉 café naïve émojis ✨💖👑".to_string()),
+            ..Default::default()
+        };
+
+        // Serialize and deserialize
+        let json = serde_json::to_string(&config).expect("Should serialize Unicode");
+        let restored: PersonaConfig = serde_json::from_str(&json)
+            .expect("Should deserialize Unicode");
+
+        assert_eq!(
+            config.additional_context,
+            restored.additional_context,
+            "Unicode should survive round-trip"
+        );
+
+        // Verify it can be used in prompt generation
+        let prompt = activate_persona(Persona::Regina, config);
+        assert!(prompt.contains("日本語"), "Unicode should appear in prompt");
+        assert!(prompt.contains("🎉"), "Emoji should appear in prompt");
+    }
+
+    #[test]
+    fn test_activate_persona_minimal_all_personas() {
+        // Test that activate_persona_minimal works for all personas including Custom
+        // This tests the safe array access fix (emoji_favorites.first())
+        for persona in Persona::all() {
+            let prompt = activate_persona_minimal(*persona);
+            assert!(!prompt.is_empty(), "Minimal prompt should not be empty for {:?}", persona);
         }
-        // If it fails, that's expected behavior without #[serde(default)]
+
+        // Specifically test Custom which was flagged as having stub data
+        let custom_prompt = activate_persona_minimal(Persona::Custom);
+        assert!(!custom_prompt.is_empty(), "Custom minimal prompt should work");
+        assert!(custom_prompt.contains("Custom"), "Should mention Custom persona");
+    }
+
+    #[test]
+    fn test_long_additional_context_truncation() {
+        // Verify that very long additional_context is truncated in prompts
+        // Use 'Z' to avoid counting template characters
+        let long_context = "Z".repeat(10000); // Much larger than MAX_ADDITIONAL_CONTEXT_LENGTH
+
+        // First, get baseline count of Z's in prompt without additional_context
+        let baseline_config = PersonaConfig::default();
+        let baseline_prompt = activate_persona(Persona::Regina, baseline_config);
+        let baseline_z_count = baseline_prompt.matches('Z').count();
+
+        // Now test with long context
+        let config = PersonaConfig {
+            additional_context: Some(long_context.clone()),
+            ..Default::default()
+        };
+        let prompt = activate_persona(Persona::Regina, config);
+
+        // Count Z's that came from additional_context
+        let total_z_count = prompt.matches('Z').count();
+        let context_z_count = total_z_count - baseline_z_count;
+
+        // Should be truncated to MAX_ADDITIONAL_CONTEXT_LENGTH
+        assert!(
+            context_z_count <= crate::MAX_ADDITIONAL_CONTEXT_LENGTH,
+            "Additional context should be truncated to {} chars, found {} Z's from context",
+            crate::MAX_ADDITIONAL_CONTEXT_LENGTH,
+            context_z_count
+        );
+        // Should have been truncated (original was 10000)
+        assert!(
+            context_z_count < 10000,
+            "Context should have been truncated from 10000"
+        );
     }
 }
