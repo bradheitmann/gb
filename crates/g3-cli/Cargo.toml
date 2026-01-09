@@ -9,6 +9,7 @@ g3-core = { path = "../g3-core" }
 g3-config = { path = "../g3-config" }
 g3-planner = { path = "../g3-planner" }
 g3-providers = { path = "../g3-providers" }
+gb-personas = { path = "../gb-personas" }
 clap = { workspace = true }
 g3-ensembles = { path = "../g3-ensembles" }
 tokio = { workspace = true }

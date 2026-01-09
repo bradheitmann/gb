@@ -6,6 +6,9 @@ use anyhow::Result;
 use crossterm::style::{Color, ResetColor, SetForegroundColor};
 use std::time::{Duration, Instant};
 
+// GB Persona System - theatrical agents for the dialectical loop
+use gb_personas::{activate_gb_role, AgentRole, Language};
+
 #[derive(Debug, Clone)]
 struct TurnMetrics {
     turn_number: usize,
@@ -2382,15 +2385,17 @@ async fn run_autonomous(
         agent.print_provider_banner("Player");
 
         // Player mode: implement requirements (with coach feedback if available)
+        // Using Gretchen persona (Player) from gb-personas
+        let player_persona = activate_gb_role(AgentRole::Player, Language::Rust, false);
         let player_prompt = if coach_feedback.is_empty() {
             format!(
-                "You are G3 in implementation mode. Read and implement the following requirements:\n\n{}\n\nRequirements SHA256: {}\n\nImplement this step by step, creating all necessary files and code.",
-                requirements, requirements_sha
+                "{}\n\n---\n\n## IMPLEMENTATION TASK\n\nRead and implement the following requirements:\n\n{}\n\nRequirements SHA256: {}\n\nImplement this step by step, creating all necessary files and code. Stay in character!",
+                player_persona, requirements, requirements_sha
             )
         } else {
             format!(
-                "You are G3 in implementation mode. Address the following specific feedback from the coach:\n\n{}\n\nContext: You are improving an implementation based on these requirements:\n{}\n\nFocus on fixing the issues mentioned in the coach feedback above.",
-                coach_feedback, requirements
+                "{}\n\n---\n\n## COACH FEEDBACK TO ADDRESS\n\n{}\n\n## REQUIREMENTS CONTEXT\n\n{}\n\nFocus on fixing the issues mentioned in the coach feedback above. Stay in character!",
+                player_persona, coach_feedback, requirements
             )
         };
 
@@ -2599,8 +2604,10 @@ async fn run_autonomous(
         ));
 
         // Coach mode: critique the implementation
+        // Using Regina persona (Coach) from gb-personas
+        let coach_persona = activate_gb_role(AgentRole::Coach, Language::Rust, false);
         let coach_prompt = format!(
-            "You are G3 in coach mode. Your role is to critique and review implementations against requirements and provide concise, actionable feedback.
+            "{}\n\n---\n\n## REVIEW TASK
 
 REQUIREMENTS:
 {}
@@ -2625,8 +2632,8 @@ If the implementation thoroughly meets all requirements, compiles and is fully t
 If improvements are needed:
 - Call final_output with a brief summary listing ONLY the specific issues to fix
 
-Remember: Be clear in your review and concise in your feedback. APPROVE iff the implementation works and thoroughly fits the requirements (implementation > 95% complete). Be rigorous, especially by testing that all UI features work.",
-            requirements
+Remember: Be clear in your review and concise in your feedback. APPROVE iff the implementation works and thoroughly fits the requirements (implementation > 95% complete). Be rigorous, especially by testing that all UI features work. Stay in character!",
+            coach_persona, requirements
         );
 
         output.print(&format!(

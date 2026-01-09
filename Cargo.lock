@@ -1353,6 +1353,7 @@ dependencies = [
  "g3-ensembles",
  "g3-planner",
  "g3-providers",
+ "gb-personas",
  "hex",
  "indicatif",
  "once_cell",
