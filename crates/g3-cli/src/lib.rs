@@ -734,9 +734,15 @@ async fn run_agent_mode(
         let exe_dir = std::env::current_exe()
             .ok()
             .and_then(|p| p.parent().map(|p| p.to_path_buf()));
-        
+
+        let home_dir = dirs::home_dir();
+
         let possible_paths = [
+            // Check ~/.config/gb/agents (global install location)
+            home_dir.as_ref().map(|h| h.join(".config/gb/agents").join(format!("{}.md", agent_name))),
+            // Check next to executable
             exe_dir.as_ref().map(|d| d.join("agents").join(format!("{}.md", agent_name))),
+            // Check current directory
             Some(PathBuf::from(format!("agents/{}.md", agent_name))),
         ];
         
