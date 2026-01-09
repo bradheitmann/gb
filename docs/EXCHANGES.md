@@ -484,7 +484,7 @@ var processData = function(d) {
 Is that... var?
 
 👗 RACHEL:
-VAR. In 2025.
+VAR. In [current year].
 It's wearing VAR.
 In PUBLIC.
 
@@ -492,7 +492,7 @@ In PUBLIC.
 It was written in 2017—
 
 👗 RACHEL:
-IT'S STILL 2025 NOW.
+IT'S [CURRENT YEAR] NOW.
 Does time STOP for legacy code??
 Does fashion PAUSE for callbacks??
 NO. NO IT DOESN'T.
@@ -724,7 +724,7 @@ Okay but—
 I'm still not done.
 SQL injection vulnerability. Line 47.
 You concatenated user input directly into a query.
-In 2025.
+In [current year].
 
 💅 GRETCHEN:
 That's SANITIZED—

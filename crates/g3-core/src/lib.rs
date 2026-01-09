@@ -308,33 +308,35 @@ impl<W: UiWriter> Agent<W> {
     /// Validate that the system prompt is the first message in the conversation history.
     /// This is a critical invariant that must be maintained for proper agent operation.
     ///
-    /// # Panics
-    /// Panics if:
+    /// # Errors
+    /// Returns an error if:
     /// - The conversation history is empty
     /// - The first message is not a System message
     /// - The first message doesn't contain the system prompt markers
-    fn validate_system_prompt_is_first(&self) {
+    fn validate_system_prompt_is_first(&self) -> Result<()> {
         if self.context_window.conversation_history.is_empty() {
-            panic!(
+            return Err(anyhow::anyhow!(
                 "FATAL: Conversation history is empty. System prompt must be the first message."
-            );
+            ));
         }
 
         let first_message = &self.context_window.conversation_history[0];
 
         if !matches!(first_message.role, MessageRole::System) {
-            panic!(
+            return Err(anyhow::anyhow!(
                 "FATAL: First message is not a System message. Found: {:?}",
                 first_message.role
-            );
+            ));
         }
 
         // Check for system prompt markers that are present in both standard and agent mode
         // Agent mode replaces the identity line but keeps all other instructions
         let has_tool_instructions = first_message.content.contains("IMPORTANT: You must call tools to achieve goals");
         if !has_tool_instructions {
-            panic!("FATAL: First system message does not contain the system prompt. This likely means the README was added before the system prompt.");
+            return Err(anyhow::anyhow!("FATAL: First system message does not contain the system prompt. This likely means the README was added before the system prompt."));
         }
+
+        Ok(())
     }
 
     /// Convert cache config string to CacheControl enum
@@ -701,7 +703,7 @@ impl<W: UiWriter> Agent<W> {
         self.ui_writer.reset_json_filter();
 
         // Validate that the system prompt is the first message (critical invariant)
-        self.validate_system_prompt_is_first();
+        self.validate_system_prompt_is_first()?;
 
         // Generate session ID based on the initial prompt if this is a new session
         if self.session_id.is_none() {
@@ -1164,7 +1166,7 @@ impl<W: UiWriter> Agent<W> {
             .unwrap_or(false);
 
         // Validate that the system prompt is still first
-        self.validate_system_prompt_is_first();
+        self.validate_system_prompt_is_first()?;
 
         if !has_readme {
             return Ok(false);
@@ -2818,11 +2820,9 @@ impl<W: UiWriter> Drop for Agent<W> {
         // Validate system prompt invariant on drop (agent exit)
         // This catches any bugs where the conversation history was corrupted during execution
         if !self.context_window.conversation_history.is_empty() {
-            if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                self.validate_system_prompt_is_first();
-            })) {
+            if let Err(e) = self.validate_system_prompt_is_first() {
                 eprintln!(
-                    "\n⚠️  FATAL ERROR ON EXIT: System prompt validation failed: {:?}",
+                    "\n⚠️  FATAL ERROR ON EXIT: System prompt validation failed: {}",
                     e
                 );
             }

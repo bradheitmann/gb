@@ -144,6 +144,47 @@ fn format_elapsed_time(duration: Duration) -> String {
     }
 }
 
+/// Print a session report with token usage statistics and performance histogram.
+/// Consolidates the common reporting logic used across autonomous mode exit points.
+fn print_session_report(
+    output: &SimpleOutput,
+    elapsed: Duration,
+    turn: usize,
+    max_turns: usize,
+    status: &str,
+    context_window: &g3_core::ContextWindow,
+    turn_metrics: &[TurnMetrics],
+) {
+    output.print(&format!("\n{}", "=".repeat(60)));
+    output.print("📊 AUTONOMOUS MODE SESSION REPORT");
+    output.print(&"=".repeat(60));
+
+    output.print(&format!(
+        "⏱️  Total Duration: {:.2}s",
+        elapsed.as_secs_f64()
+    ));
+    output.print(&format!("🔄 Turns Taken: {}/{}", turn, max_turns));
+    output.print(&format!("📝 Final Status: {}", status));
+
+    output.print("\n📈 Token Usage Statistics:");
+    output.print(&format!("   • Used Tokens: {}", context_window.used_tokens));
+    output.print(&format!(
+        "   • Total Available: {}",
+        context_window.total_tokens
+    ));
+    output.print(&format!(
+        "   • Cumulative Tokens: {}",
+        context_window.cumulative_tokens
+    ));
+    output.print(&format!(
+        "   • Usage Percentage: {:.1}%",
+        context_window.percentage_used()
+    ));
+    // Add per-turn histogram
+    output.print(&generate_turn_histogram(turn_metrics));
+    output.print(&"=".repeat(60));
+}
+
 /// Extract coach feedback by reading from the coach agent's specific log file
 /// Uses the coach agent's session ID to find the exact log file
 fn extract_coach_feedback_from_logs(
@@ -247,9 +288,9 @@ fn extract_coach_feedback_from_logs(
         }
     }
 
-    // If we couldn't extract from logs, panic with detailed error
-    panic!(
-        "CRITICAL: Could not extract coach feedback from session: {}\n\
+    // If we couldn't extract from logs, return an error instead of panicking
+    Err(anyhow::anyhow!(
+        "Could not extract coach feedback from session: {}\n\
          Log file path: {:?}\n\
          Log file exists: {}\n\
          This indicates the coach did not call final_output tool or the log is corrupted.\n\
@@ -258,7 +299,7 @@ fn extract_coach_feedback_from_logs(
         log_file_path,
         log_file_path.exists(),
         coach_result.response.len()
-    );
+    ))
 }
 
 use clap::Parser;
@@ -434,18 +475,6 @@ pub async fn run() -> Result<()> {
             cli.workspace.clone(),
             cli.no_git,
             cli.config.as_deref(),
-        )
-        .await;
-    }
-
-    // Check if agent mode is enabled
-    if let Some(agent_name) = &cli.agent {
-        return run_agent_mode(
-            agent_name,
-            cli.workspace.clone(),
-            cli.config.as_deref(),
-            cli.quiet,
-            cli.new_session,
         )
         .await;
     }
@@ -2373,35 +2402,15 @@ async fn run_autonomous(
         // Generate final report even for early exit
         let elapsed = start_time.elapsed();
         let context_window = agent.get_context_window();
-
-        output.print(&format!("\n{}", "=".repeat(60)));
-        output.print("📊 AUTONOMOUS MODE SESSION REPORT");
-        output.print(&"=".repeat(60));
-
-        output.print(&format!(
-            "⏱️  Total Duration: {:.2}s",
-            elapsed.as_secs_f64()
-        ));
-        output.print(&format!("🔄 Turns Taken: 0/{}", max_turns));
-        output.print("📝 Final Status: ⚠️ NO REQUIREMENTS FILE");
-
-        output.print("\n📈 Token Usage Statistics:");
-        output.print(&format!("   • Used Tokens: {}", context_window.used_tokens));
-        output.print(&format!(
-            "   • Total Available: {}",
-            context_window.total_tokens
-        ));
-        output.print(&format!(
-            "   • Cumulative Tokens: {}",
-            context_window.cumulative_tokens
-        ));
-        output.print(&format!(
-            "   • Usage Percentage: {:.1}%",
-            context_window.percentage_used()
-        ));
-        // Add per-turn histogram
-        output.print(&generate_turn_histogram(&turn_metrics));
-        output.print(&"=".repeat(60));
+        print_session_report(
+            &output,
+            elapsed,
+            0,
+            max_turns,
+            "⚠️ NO REQUIREMENTS FILE",
+            &context_window,
+            &turn_metrics,
+        );
 
         return Ok(());
     }
@@ -2415,35 +2424,15 @@ async fn run_autonomous(
             // Generate final report even for early exit
             let elapsed = start_time.elapsed();
             let context_window = agent.get_context_window();
-
-            output.print(&format!("\n{}", "=".repeat(60)));
-            output.print("📊 AUTONOMOUS MODE SESSION REPORT");
-            output.print(&"=".repeat(60));
-
-            output.print(&format!(
-                "⏱️  Total Duration: {:.2}s",
-                elapsed.as_secs_f64()
-            ));
-            output.print(&format!("🔄 Turns Taken: 0/{}", max_turns));
-            output.print("📝 Final Status: ⚠️ CANNOT READ REQUIREMENTS");
-
-            output.print("\n📈 Token Usage Statistics:");
-            output.print(&format!("   • Used Tokens: {}", context_window.used_tokens));
-            output.print(&format!(
-                "   • Total Available: {}",
-                context_window.total_tokens
-            ));
-            output.print(&format!(
-                "   • Cumulative Tokens: {}",
-                context_window.cumulative_tokens
-            ));
-            output.print(&format!(
-                "   • Usage Percentage: {:.1}%",
-                context_window.percentage_used()
-            ));
-            // Add per-turn histogram
-            output.print(&generate_turn_histogram(&turn_metrics));
-            output.print(&"=".repeat(60));
+            print_session_report(
+                &output,
+                elapsed,
+                0,
+                max_turns,
+                "⚠️ CANNOT READ REQUIREMENTS",
+                &context_window,
+                &turn_metrics,
+            );
 
             return Ok(());
         }
@@ -2647,35 +2636,15 @@ async fn run_autonomous(
                         // Generate final report even for panic
                         let elapsed = start_time.elapsed();
                         let context_window = agent.get_context_window();
-
-                        output.print(&format!("\n{}", "=".repeat(60)));
-                        output.print("📊 AUTONOMOUS MODE SESSION REPORT");
-                        output.print(&"=".repeat(60));
-
-                        output.print(&format!(
-                            "⏱️  Total Duration: {:.2}s",
-                            elapsed.as_secs_f64()
-                        ));
-                        output.print(&format!("🔄 Turns Taken: {}/{}", turn, max_turns));
-                        output.print("📝 Final Status: 💥 PLAYER PANIC");
-
-                        output.print("\n📈 Token Usage Statistics:");
-                        output.print(&format!("   • Used Tokens: {}", context_window.used_tokens));
-                        output.print(&format!(
-                            "   • Total Available: {}",
-                            context_window.total_tokens
-                        ));
-                        output.print(&format!(
-                            "   • Cumulative Tokens: {}",
-                            context_window.cumulative_tokens
-                        ));
-                        output.print(&format!(
-                            "   • Usage Percentage: {:.1}%",
-                            context_window.percentage_used()
-                        ));
-                        // Add per-turn histogram
-                        output.print(&generate_turn_histogram(&turn_metrics));
-                        output.print(&"=".repeat(60));
+                        print_session_report(
+                            &output,
+                            elapsed,
+                            turn,
+                            max_turns,
+                            "💥 PLAYER PANIC",
+                            &context_window,
+                            &turn_metrics,
+                        );
 
                         return Err(e);
                     }
@@ -2865,35 +2834,15 @@ Remember: Be clear in your review and concise in your feedback. APPROVE iff the 
                         // Generate final report even for panic
                         let elapsed = start_time.elapsed();
                         let context_window = agent.get_context_window();
-
-                        output.print(&format!("\n{}", "=".repeat(60)));
-                        output.print("📊 AUTONOMOUS MODE SESSION REPORT");
-                        output.print(&"=".repeat(60));
-
-                        output.print(&format!(
-                            "⏱️  Total Duration: {:.2}s",
-                            elapsed.as_secs_f64()
-                        ));
-                        output.print(&format!("🔄 Turns Taken: {}/{}", turn, max_turns));
-                        output.print("📝 Final Status: 💥 COACH PANIC");
-
-                        output.print("\n📈 Token Usage Statistics:");
-                        output.print(&format!("   • Used Tokens: {}", context_window.used_tokens));
-                        output.print(&format!(
-                            "   • Total Available: {}",
-                            context_window.total_tokens
-                        ));
-                        output.print(&format!(
-                            "   • Cumulative Tokens: {}",
-                            context_window.cumulative_tokens
-                        ));
-                        output.print(&format!(
-                            "   • Usage Percentage: {:.1}%",
-                            context_window.percentage_used()
-                        ));
-                        // Add per-turn histogram
-                        output.print(&generate_turn_histogram(&turn_metrics));
-                        output.print(&"=".repeat(60));
+                        print_session_report(
+                            &output,
+                            elapsed,
+                            turn,
+                            max_turns,
+                            "💥 COACH PANIC",
+                            &context_window,
+                            &turn_metrics,
+                        );
 
                         return Err(e);
                     }
@@ -3017,45 +2966,22 @@ Remember: Be clear in your review and concise in your feedback. APPROVE iff the 
     // Generate final report
     let elapsed = start_time.elapsed();
     let context_window = agent.get_context_window();
-
-    output.print(&format!("\n{}", "=".repeat(60)));
-    output.print("📊 AUTONOMOUS MODE SESSION REPORT");
-    output.print(&"=".repeat(60));
-
-    output.print(&format!(
-        "⏱️  Total Duration: {:.2}s",
-        elapsed.as_secs_f64()
-    ));
-    output.print(&format!("🔄 Turns Taken: {}/{}", turn, max_turns));
-    output.print(&format!(
-        "📝 Final Status: {}",
-        if implementation_approved {
-            "✅ APPROVED"
-        } else if turn >= max_turns {
-            "⏰ MAX TURNS REACHED"
-        } else {
-            "⚠️ INCOMPLETE"
-        }
-    ));
-
-    output.print("\n📈 Token Usage Statistics:");
-    output.print(&format!("   • Used Tokens: {}", context_window.used_tokens));
-    output.print(&format!(
-        "   • Total Available: {}",
-        context_window.total_tokens
-    ));
-    output.print(&format!(
-        "   • Cumulative Tokens: {}",
-        context_window.cumulative_tokens
-    ));
-    output.print(&format!(
-        "   • Usage Percentage: {:.1}%",
-        context_window.percentage_used()
-    ));
-
-    // Add per-turn histogram
-    output.print(&generate_turn_histogram(&turn_metrics));
-    output.print(&"=".repeat(60));
+    let status = if implementation_approved {
+        "✅ APPROVED"
+    } else if turn >= max_turns {
+        "⏰ MAX TURNS REACHED"
+    } else {
+        "⚠️ INCOMPLETE"
+    };
+    print_session_report(
+        &output,
+        elapsed,
+        turn,
+        max_turns,
+        status,
+        &context_window,
+        &turn_metrics,
+    );
 
     if implementation_approved {
         output.print(&format!(
