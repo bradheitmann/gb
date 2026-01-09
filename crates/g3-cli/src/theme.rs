@@ -120,6 +120,23 @@ impl ColorTheme {
             terminal_success: ColorValue::Rgb { r: 80, g: 250, b: 123 }, // Dracula green for success
         }
     }
+
+    /// Get the Glitter theme - GB's signature pink aesthetic ✨💖👑
+    pub fn glitter() -> Self {
+        ColorTheme {
+            name: "Glitter".to_string(),
+            terminal_green: ColorValue::Rgb { r: 255, g: 20, b: 147 },  // Deep pink (#FF1493) - main text
+            terminal_amber: ColorValue::Rgb { r: 255, g: 182, b: 193 }, // Light pink - warnings
+            terminal_dim_green: ColorValue::Rgb { r: 219, g: 112, b: 147 }, // Pale violet red - dim text
+            terminal_bg: ColorValue::Rgb { r: 25, g: 0, b: 15 },        // Very dark magenta bg
+            terminal_cyan: ColorValue::Rgb { r: 255, g: 105, b: 180 },  // Hot pink - highlights
+            terminal_red: ColorValue::Rgb { r: 255, g: 69, b: 0 },      // Red-orange for errors
+            terminal_pale_blue: ColorValue::Rgb { r: 238, g: 130, b: 238 }, // Violet - READY status
+            terminal_dark_amber: ColorValue::Rgb { r: 255, g: 0, b: 127 },  // Rose - PROCESSING
+            terminal_white: ColorValue::Rgb { r: 255, g: 240, b: 245 }, // Lavender blush - bright text
+            terminal_success: ColorValue::Rgb { r: 255, g: 20, b: 147 }, // Deep pink for success ✨
+        }
+    }
     
     /// Get a theme by name or from file
     pub fn load(theme_name: Option<&str>) -> Result<Self> {
@@ -127,6 +144,7 @@ impl ColorTheme {
             None => Ok(Self::default()),
             Some("default") | Some("retro") => Ok(Self::default()),
             Some("dracula") => Ok(Self::dracula()),
+            Some("glitter") | Some("pink") | Some("gb") => Ok(Self::glitter()),
             Some(path) => {
                 // Try to load from file
                 if Path::new(path).exists() {

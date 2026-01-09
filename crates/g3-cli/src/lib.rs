@@ -7,7 +7,7 @@ use crossterm::style::{Color, ResetColor, SetForegroundColor};
 use std::time::{Duration, Instant};
 
 // GB Persona System - theatrical agents for the dialectical loop
-use gb_personas::{activate_gb_role, AgentRole, Language};
+use gb_personas::{activate_gb_role, get_persona_data, AgentRole, Language, Persona};
 
 #[derive(Debug, Clone)]
 struct TurnMetrics {
@@ -1682,6 +1682,12 @@ async fn run_interactive<W: UiWriter>(
                                 output.print("  /help      - Show this help message");
                                 output.print("  exit/quit  - Exit the interactive session");
                                 output.print("");
+                                output.print("✨💖 GB Commands:");
+                                output.print("  /personas  - List all available personas");
+                                output.print("  /slay      - Show stats with MAXIMUM GLITTER 💅");
+                                output.print("  /fetch     - Check if it's fetch yet");
+                                output.print("  /glitter   - Toggle glitter mode info");
+                                output.print("");
                                 continue;
                             }
                             "/compact" => {
@@ -1735,6 +1741,70 @@ async fn run_interactive<W: UiWriter>(
                             "/stats" => {
                                 let stats = agent.get_stats();
                                 output.print(&stats);
+                                continue;
+                            }
+                            // ✨💖 GB Persona Commands 💖✨
+                            "/personas" => {
+                                output.print("");
+                                output.print("✨💖 GB PERSONAS 💖✨");
+                                output.print("═══════════════════════════════════════════════════════════");
+                                for persona in Persona::all() {
+                                    let data = get_persona_data(*persona);
+                                    output.print(&format!(
+                                        "  {} {} - {}",
+                                        data.emoji_favorites[0],
+                                        data.display_name,
+                                        data.summary.split('.').next().unwrap_or("")
+                                    ));
+                                    output.print(&format!(
+                                        "      Slang Level: {}",
+                                        persona.slang_level()
+                                    ));
+                                    output.print("");
+                                }
+                                output.print("═══════════════════════════════════════════════════════════");
+                                output.print("  Use /persona <name> to switch personas (coming soon)");
+                                output.print("");
+                                continue;
+                            }
+                            "/slay" => {
+                                // Stats but make it fashion 💅
+                                let stats = agent.get_stats();
+                                output.print("");
+                                output.print("💅✨👑 SLAY STATS 👑✨💅");
+                                output.print("═══════════════════════════════════════════════════════════");
+                                output.print(&stats);
+                                output.print("═══════════════════════════════════════════════════════════");
+                                output.print("  That's giving main character energy bestie 💖");
+                                output.print("");
+                                continue;
+                            }
+                            "/fetch" => {
+                                // Quick status check - is it fetch yet?
+                                output.print("");
+                                output.print("👑 FETCH STATUS CHECK 👑");
+                                output.print("");
+                                output.print("  Is it fetch? Let me check...");
+                                output.print("");
+                                output.print("  ✨ Stop trying to make fetch happen.");
+                                output.print("  ✨ It's NOT going to happen.");
+                                output.print("");
+                                output.print("  ...unless you ship it. Then it's SO fetch. 💅");
+                                output.print("");
+                                continue;
+                            }
+                            "/glitter" => {
+                                output.print("");
+                                output.print("✨💖👑 GLITTER MODE 👑💖✨");
+                                output.print("");
+                                output.print("  Glitter mode controls emoji density in persona output.");
+                                output.print("  Currently: OFF (Elevated emoji density)");
+                                output.print("");
+                                output.print("  To enable MAXIMUM GLITTER, set in config:");
+                                output.print("    glitter_mode = true");
+                                output.print("");
+                                output.print("  On Wednesdays, we ship pink code. 💅");
+                                output.print("");
                                 continue;
                             }
                             _ => {
