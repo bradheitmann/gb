@@ -220,9 +220,16 @@ Supporting them: six specialist agents, each with their own relationship to Gen-
 ```bash
 git clone https://github.com/bradheitmann/gb.git
 cd gb
+cp config.example.toml config.toml
+# Edit config.toml with your API key (Anthropic, OpenAI, etc.)
 ./install.sh
 ```
 This installs `gb` to `~/.cargo/bin` and properly handles the VisionBridge dylib for computer control features.
+
+**Config Setup:**
+- Copy `config.example.toml` to `config.toml`
+- Add your API key for Anthropic, OpenAI, Databricks, or other providers
+- Or set environment variable: `export ANTHROPIC_API_KEY="your-key"`
 
 ### From Source (Manual)
 ```bash
