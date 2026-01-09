@@ -192,103 +192,27 @@ fn extract_coach_feedback_from_logs(
     coach_agent: &g3_core::Agent<ConsoleUiWriter>,
     output: &SimpleOutput,
 ) -> Result<String> {
-    // CORRECT APPROACH: Get the session ID from the current coach agent
-    // and read its specific log file directly
-
     // Get the coach agent's session ID
     let session_id = coach_agent
         .get_session_id()
         .ok_or_else(|| anyhow::anyhow!("Coach agent has no session ID"))?;
 
-    // Try new .g3/sessions/<session_id>/session.json path first
-    let log_file_path = g3_core::get_session_file(&session_id);
-    
-    // Fall back to old logs/ path if new path doesn't exist
-    let log_file_path = if log_file_path.exists() {
-        log_file_path
-    } else {
-        let logs_dir = std::path::Path::new("logs");
-        logs_dir.join(format!("g3_session_{}.json", session_id))
+    // Determine log file path (new path first, fall back to old)
+    let log_file_path = {
+        let new_path = g3_core::get_session_file(&session_id);
+        if new_path.exists() {
+            new_path
+        } else {
+            std::path::Path::new("logs").join(format!("g3_session_{}.json", session_id))
+        }
     };
 
-    // Read the coach agent's specific log file
-    if log_file_path.exists() {
-        if let Ok(log_content) = std::fs::read_to_string(&log_file_path) {
-            if let Ok(log_json) = serde_json::from_str::<serde_json::Value>(&log_content) {
-                if let Some(context_window) = log_json.get("context_window") {
-                    if let Some(conversation_history) = context_window.get("conversation_history") {
-                        if let Some(messages) = conversation_history.as_array() {
-                            // Go backwards through the conversation to find the last tool result
-                            // that corresponds to a final_output tool call
-                            for i in (0..messages.len()).rev() {
-                                let msg = &messages[i];
-                                
-                                // Check if this is a User message with "Tool result:"
-                                if let Some(role) = msg.get("role") {
-                                    if let Some(role_str) = role.as_str() {
-                                        if role_str == "User" || role_str == "user" {
-                                            if let Some(content) = msg.get("content") {
-                                                if let Some(content_str) = content.as_str() {
-                                                    if content_str.starts_with("Tool result:") {
-                                                        // Found a tool result, now check the preceding message
-                                                        // to verify it was a final_output tool call
-                                                        if i > 0 {
-                                                            let prev_msg = &messages[i - 1];
-                                                            if let Some(prev_role) = prev_msg.get("role") {
-                                                                if let Some(prev_role_str) = prev_role.as_str() {
-                                                                    if prev_role_str == "assistant" || prev_role_str == "Assistant" {
-                                                                        if let Some(prev_content) = prev_msg.get("content") {
-                                                                            if let Some(prev_content_str) = prev_content.as_str() {
-                                                                                // Check if the previous assistant message contains a final_output tool call
-                                                                                if prev_content_str.contains("\"tool\": \"final_output\"") {
-                                                                                    // This is a final_output tool result
-                                                                                    let feedback = if content_str.starts_with("Tool result: ") {
-                                                                                        content_str.strip_prefix("Tool result: ")
-                                                                                            .unwrap_or(content_str)
-                                                                                            .to_string()
-                                                                                    } else {
-                                                                                        content_str.to_string()
-                                                                                    };
-                                                                                    
-                                                                                    output.print(&format!(
-                                                                                        "Coach feedback extracted: {} characters (from {} total)",
-                                                                                        feedback.len(),
-                                                                                        content_str.len()
-                                                                                    ));
-                                                                                    output.print(&format!("Coach feedback:\n{}", feedback));
-                                                                                    
-                                                                                    output.print(&format!(
-                                                                                        "✅ Extracted coach feedback from session: {} (verified final_output tool)",
-                                                                                        session_id
-                                                                                    ));
-                                                                                    return Ok(feedback);
-                                                                                } else {
-                                                                                    output.print(&format!(
-                                                                                        "⚠️  Skipping tool result at index {} - not a final_output tool call",
-                                                                                        i
-                                                                                    ));
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    // Try to extract feedback from the log file
+    if let Some(feedback) = try_extract_feedback_from_log(&log_file_path, &session_id, output) {
+        return Ok(feedback);
     }
 
-    // If we couldn't extract from logs, return an error instead of panicking
+    // If we couldn't extract from logs, return an error
     Err(anyhow::anyhow!(
         "Could not extract coach feedback from session: {}\n\
          Log file path: {:?}\n\
@@ -300,6 +224,94 @@ fn extract_coach_feedback_from_logs(
         log_file_path.exists(),
         coach_result.response.len()
     ))
+}
+
+/// Helper: Try to extract feedback from a session log file
+/// Returns None if extraction fails at any step (flattens the nested conditionals)
+fn try_extract_feedback_from_log(
+    log_file_path: &std::path::Path,
+    session_id: &str,
+    output: &SimpleOutput,
+) -> Option<String> {
+    // Read and parse the log file
+    let log_content = std::fs::read_to_string(log_file_path).ok()?;
+    let log_json: serde_json::Value = serde_json::from_str(&log_content).ok()?;
+
+    // Navigate to conversation history
+    let messages = log_json
+        .get("context_window")?
+        .get("conversation_history")?
+        .as_array()?;
+
+    // Search backwards for final_output tool result
+    for i in (0..messages.len()).rev() {
+        if let Some(feedback) = try_extract_from_message(messages, i, session_id, output) {
+            return Some(feedback);
+        }
+    }
+
+    None
+}
+
+/// Helper: Try to extract feedback from a specific message index
+/// Checks if message is a tool result for final_output
+fn try_extract_from_message(
+    messages: &[serde_json::Value],
+    index: usize,
+    session_id: &str,
+    output: &SimpleOutput,
+) -> Option<String> {
+    let msg = &messages[index];
+
+    // Check if this is a User message with "Tool result:"
+    let role = msg.get("role")?.as_str()?;
+    if !matches!(role, "User" | "user") {
+        return None;
+    }
+
+    let content_str = msg.get("content")?.as_str()?;
+    if !content_str.starts_with("Tool result:") {
+        return None;
+    }
+
+    // Verify the preceding message was a final_output tool call
+    if index == 0 {
+        return None;
+    }
+
+    let prev_msg = &messages[index - 1];
+    let prev_role = prev_msg.get("role")?.as_str()?;
+    if !matches!(prev_role, "assistant" | "Assistant") {
+        return None;
+    }
+
+    let prev_content = prev_msg.get("content")?.as_str()?;
+    if !prev_content.contains("\"tool\": \"final_output\"") {
+        output.print(&format!(
+            "⚠️  Skipping tool result at index {} - not a final_output tool call",
+            index
+        ));
+        return None;
+    }
+
+    // Extract the feedback
+    let feedback = content_str
+        .strip_prefix("Tool result: ")
+        .unwrap_or(content_str)
+        .to_string();
+
+    output.print(&format!(
+        "Coach feedback extracted: {} characters (from {} total)",
+        feedback.len(),
+        content_str.len()
+    ));
+    output.print(&format!("Coach feedback:\n{}", feedback));
+    output.print(&format!(
+        "✅ Extracted coach feedback from session: {} (verified final_output tool)",
+        session_id
+    ));
+
+    Some(feedback)
 }
 
 use clap::Parser;
@@ -443,6 +455,42 @@ pub struct Cli {
     pub new_session: bool,
 }
 
+/// Load configuration and apply all CLI flag overrides.
+///
+/// This consolidates the repeated config loading pattern used in multiple code paths.
+/// Applies: webdriver, chrome-headless, safari, and manual-compact flags.
+fn load_config_with_cli_overrides(cli: &Cli) -> Result<Config> {
+    let mut config = Config::load_with_overrides(
+        cli.config.as_deref(),
+        cli.provider.clone(),
+        cli.model.clone(),
+    )?;
+
+    // Apply webdriver flag override
+    if cli.webdriver {
+        config.webdriver.enabled = true;
+    }
+
+    // Apply chrome-headless flag override
+    if cli.chrome_headless {
+        config.webdriver.enabled = true;
+        config.webdriver.browser = g3_config::WebDriverBrowser::ChromeHeadless;
+    }
+
+    // Apply safari flag override
+    if cli.safari {
+        config.webdriver.enabled = true;
+        config.webdriver.browser = g3_config::WebDriverBrowser::Safari;
+    }
+
+    // Apply no-auto-compact flag override
+    if cli.manual_compact {
+        config.agent.auto_compact = false;
+    }
+
+    Ok(config)
+}
+
 pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
@@ -569,33 +617,7 @@ pub async fn run() -> Result<()> {
     project.enter_workspace()?;
 
     // Load configuration with CLI overrides
-    let mut config = Config::load_with_overrides(
-        cli.config.as_deref(),
-        cli.provider.clone(),
-        cli.model.clone(),
-    )?;
-
-    // Apply webdriver flag override
-    if cli.webdriver {
-        config.webdriver.enabled = true;
-    }
-
-    // Apply chrome-headless flag override
-    if cli.chrome_headless {
-        config.webdriver.enabled = true;
-        config.webdriver.browser = g3_config::WebDriverBrowser::ChromeHeadless;
-    }
-
-    // Apply safari flag override
-    if cli.safari {
-        config.webdriver.enabled = true;
-        config.webdriver.browser = g3_config::WebDriverBrowser::Safari;
-    }
-
-    // Apply no-auto-compact flag override
-    if cli.manual_compact {
-        config.agent.auto_compact = false;
-    }
+    let config = load_config_with_cli_overrides(&cli)?;
 
     // Validate provider if specified
     if let Some(ref provider) = cli.provider {
@@ -1047,33 +1069,7 @@ async fn run_accumulative_mode(
                                 };
 
                             // Load configuration
-                            let mut config = Config::load_with_overrides(
-                                cli.config.as_deref(),
-                                cli.provider.clone(),
-                                cli.model.clone(),
-                            )?;
-
-                            // Apply webdriver flag override
-                            if cli.webdriver {
-                                config.webdriver.enabled = true;
-                            }
-
-                            // Apply chrome-headless flag override
-                            if cli.chrome_headless {
-                                config.webdriver.enabled = true;
-                                config.webdriver.browser = g3_config::WebDriverBrowser::ChromeHeadless;
-                            }
-
-                            // Apply safari flag override
-                            if cli.safari {
-                                config.webdriver.enabled = true;
-                                config.webdriver.browser = g3_config::WebDriverBrowser::Safari;
-                            }
-
-                            // Apply no-auto-compact flag override
-                            if cli.manual_compact {
-                                config.agent.auto_compact = false;
-                            }
+                            let config = load_config_with_cli_overrides(&cli)?;
 
                             // Create agent for interactive mode with requirements context
                             let ui_writer = ConsoleUiWriter::new();
@@ -1149,33 +1145,7 @@ async fn run_accumulative_mode(
                 project.enter_workspace()?;
 
                 // Load configuration with CLI overrides
-                let mut config = Config::load_with_overrides(
-                    cli.config.as_deref(),
-                    cli.provider.clone(),
-                    cli.model.clone(),
-                )?;
-
-                // Apply webdriver flag override
-                if cli.webdriver {
-                    config.webdriver.enabled = true;
-                }
-
-                // Apply chrome-headless flag override
-                if cli.chrome_headless {
-                    config.webdriver.enabled = true;
-                    config.webdriver.browser = g3_config::WebDriverBrowser::ChromeHeadless;
-                }
-
-                // Apply safari flag override
-                if cli.safari {
-                    config.webdriver.enabled = true;
-                    config.webdriver.browser = g3_config::WebDriverBrowser::Safari;
-                }
-
-                // Apply no-auto-compact flag override
-                if cli.manual_compact {
-                    config.agent.auto_compact = false;
-                }
+                let config = load_config_with_cli_overrides(&cli)?;
 
                 // Create agent for this autonomous run
                 let ui_writer = ConsoleUiWriter::new();

@@ -16,7 +16,7 @@ This document describes all tools available to the G3 agent. Tools are the prima
 | **Task Management** | todo_read, todo_write | Always |
 | **Code Intelligence** | code_search, code_coverage | Always |
 | **WebDriver** | webdriver_* (12 tools) | `--webdriver` or `--chrome-headless` |
-| **Computer Control** | mouse_click, type_text, find_element, list_windows | `computer_control.enabled = true` |
+| **Computer Control** | take_screenshot (with window targeting) | Always available |
 
 ---
 
@@ -187,7 +187,7 @@ Capture a screenshot of an application window.
 ```
 
 **Notes**:
-- Use `list_windows` first to identify available windows
+- Use the application name as window_id (e.g., "Safari", "Terminal", "Google Chrome")
 - Relative paths save to `~/tmp` or `$TMPDIR`
 - Uses native screencapture on macOS
 
@@ -367,33 +367,22 @@ Close browser and end session.
 
 
 
-## Computer Control Tools
+## Computer Control
 
-Enabled with `computer_control.enabled = true` in config.
+Computer control functionality is available through `take_screenshot` with window targeting.
 
-### mouse_click
+**Note:** Low-level automation tools (mouse_click, type_text, list_windows, find_element)
+exist as internal functions in `g3-computer-control` but are **not exposed as agent tools**.
+For browser automation, use the WebDriver tools instead.
 
-Click at coordinates.
+### Screenshot with Window Targeting
 
-**Parameters**:
-- `x` (integer, required): X coordinate
-- `y` (integer, required): Y coordinate
-- `button` (string, optional): "left", "right", "middle"
+Use `take_screenshot` with the `window_id` parameter to capture specific application windows:
 
-### type_text
-
-Type text at cursor.
-
-**Parameters**:
-- `text` (string, required): Text to type
-
-### find_element
-
-Find UI element by text, role, or attributes.
-
-### list_windows
-
-List all open windows with IDs and titles.
+```json
+{"tool": "take_screenshot", "args": {"window_id": "Safari"}}
+{"tool": "take_screenshot", "args": {"window_id": "Terminal"}}
+```
 
 ---
 

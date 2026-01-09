@@ -94,20 +94,20 @@ g3/
 - **Error Recovery**: Sophisticated error classification and retry logic for recoverable errors
 - **TODO Management**: In-memory TODO list with read/write tools for task tracking
 
-**Available Tools:**
+**Available Tools (12 core + 12 webdriver):**
 - `shell`: Execute shell commands with streaming output
+- `background_process`: Run long-running processes in background
 - `read_file`: Read file contents with optional character range support
+- `read_image`: Read and analyze image files
 - `write_file`: Create or overwrite files with content
 - `str_replace`: Apply unified diffs to files with precise editing
 - `final_output`: Signal task completion with detailed summaries
+- `take_screenshot`: Capture screenshots of screen, region, or window
 - `todo_read`: Read the entire TODO list content
 - `todo_write`: Write or overwrite the entire TODO list
-- `mouse_click`: Click the mouse at specific coordinates
-- `type_text`: Type text at the current cursor position
-- `find_element`: Find UI elements by text, role, or attributes
-- `take_screenshot`: Capture screenshots of screen, region, or window
-- `find_text_on_screen`: Find text visually on screen and return coordinates
-- `list_windows`: List all open windows with IDs and titles
+- `code_coverage`: Check code coverage status
+- `code_search`: Search codebase with semantic understanding
+- `webdriver_*`: 12 browser automation tools (when webdriver enabled)
 
 ### 2. g3-providers: LLM Provider Abstraction
 
@@ -119,6 +119,7 @@ g3/
 
 **Supported Providers:**
 - **Anthropic**: Claude models via API with native tool calling support
+- **OpenAI**: GPT models via API with tool calling support
 - **Databricks**: Foundation Model APIs with OAuth and token-based authentication (default provider)
 - **Embedded**: Local models via llama.cpp with GPU acceleration (Metal/CUDA)
 - **Provider Registry**: Dynamic provider management and hot-swapping
@@ -395,8 +396,8 @@ This design document reflects the current state of G3 as a mature, production-re
 
 ### Fully Implemented
 - ✅ **Core Agent Engine**: Complete with streaming, tool execution, and context management
-- ✅ **Provider System**: Anthropic, Databricks, and Embedded providers with OAuth support
-- ✅ **Tool System**: 13 tools including file ops, shell, TODO management, and computer control
+- ✅ **Provider System**: Anthropic, OpenAI, Databricks, and Embedded providers with OAuth support
+- ✅ **Tool System**: 12 core tools + 12 webdriver tools for file ops, shell, TODO management, and browser automation
 - ✅ **CLI Interface**: Interactive mode, single-shot mode, retro TUI
 - ✅ **Autonomous Mode**: Coach-player feedback loop with requirements.md processing
 - ✅ **Configuration**: TOML-based config with environment overrides
