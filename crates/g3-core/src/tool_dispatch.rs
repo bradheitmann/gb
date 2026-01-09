@@ -7,7 +7,9 @@ use anyhow::Result;
 use tracing::{debug, warn};
 
 use crate::tools::executor::ToolContext;
-use crate::tools::{file_ops, misc, shell, todo, webdriver};
+use crate::tools::{file_ops, misc, shell, todo};
+#[cfg(feature = "computer-control")]
+use crate::tools::webdriver;
 use crate::ui_writer::UiWriter;
 use crate::ToolCall;
 
@@ -46,21 +48,36 @@ pub async fn dispatch_tool<W: UiWriter>(
         "code_coverage" => misc::execute_code_coverage(tool_call, ctx).await,
         "code_search" => misc::execute_code_search(tool_call, ctx).await,
 
-        // WebDriver tools
+        // WebDriver tools (feature-gated)
+        #[cfg(feature = "computer-control")]
         "webdriver_start" => webdriver::execute_webdriver_start(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_navigate" => webdriver::execute_webdriver_navigate(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_get_url" => webdriver::execute_webdriver_get_url(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_get_title" => webdriver::execute_webdriver_get_title(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_find_element" => webdriver::execute_webdriver_find_element(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_find_elements" => webdriver::execute_webdriver_find_elements(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_click" => webdriver::execute_webdriver_click(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_send_keys" => webdriver::execute_webdriver_send_keys(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_execute_script" => webdriver::execute_webdriver_execute_script(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_get_page_source" => webdriver::execute_webdriver_get_page_source(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_screenshot" => webdriver::execute_webdriver_screenshot(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_back" => webdriver::execute_webdriver_back(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_forward" => webdriver::execute_webdriver_forward(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_refresh" => webdriver::execute_webdriver_refresh(tool_call, ctx).await,
+        #[cfg(feature = "computer-control")]
         "webdriver_quit" => webdriver::execute_webdriver_quit(tool_call, ctx).await,
 
         // Unknown tool

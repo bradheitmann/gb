@@ -7,6 +7,7 @@ use tokio::sync::RwLock;
 use crate::background_process::BackgroundProcessManager;
 use crate::paths::{ensure_session_dir, get_session_todo_path, get_todo_path};
 use crate::ui_writer::UiWriter;
+#[cfg(feature = "computer-control")]
 use crate::webdriver_session::WebDriverSession;
 use crate::ToolCall;
 use g3_config::Config;
@@ -17,8 +18,11 @@ pub struct ToolContext<'a, W: UiWriter> {
     pub ui_writer: &'a W,
     pub session_id: Option<&'a str>,
     pub working_dir: Option<&'a str>,
+    #[cfg(feature = "computer-control")]
     pub computer_controller: Option<&'a Box<dyn g3_computer_control::ComputerController>>,
+    #[cfg(feature = "computer-control")]
     pub webdriver_session: &'a Arc<RwLock<Option<Arc<tokio::sync::Mutex<WebDriverSession>>>>>,
+    #[cfg(feature = "computer-control")]
     pub webdriver_process: &'a Arc<RwLock<Option<tokio::process::Child>>>,
     pub background_process_manager: &'a Arc<BackgroundProcessManager>,
     pub todo_content: &'a Arc<RwLock<String>>,

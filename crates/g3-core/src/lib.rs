@@ -18,6 +18,7 @@ pub mod tools;
 pub mod ui_writer;
 pub mod streaming;
 pub mod utils;
+#[cfg(feature = "computer-control")]
 pub mod webdriver_session;
 
 pub use task_result::TaskResult;
@@ -68,6 +69,7 @@ pub struct ToolCall {
 
 
 // Re-export WebDriverSession from its own module
+#[cfg(feature = "computer-control")]
 pub use webdriver_session::WebDriverSession;
 
 /// Options for fast-start discovery execution
@@ -103,13 +105,16 @@ pub struct Agent<W: UiWriter> {
     ui_writer: W,
     is_autonomous: bool,
     quiet: bool,
+    #[cfg(feature = "computer-control")]
     computer_controller: Option<Box<dyn g3_computer_control::ComputerController>>,
     todo_content: std::sync::Arc<tokio::sync::RwLock<String>>,
+    #[cfg(feature = "computer-control")]
     webdriver_session: std::sync::Arc<
         tokio::sync::RwLock<
             Option<std::sync::Arc<tokio::sync::Mutex<WebDriverSession>>>,
         >,
     >,
+    #[cfg(feature = "computer-control")]
     webdriver_process: std::sync::Arc<tokio::sync::RwLock<Option<tokio::process::Child>>>,
     tool_call_count: usize,
     requirements_sha: Option<String>,
@@ -252,6 +257,7 @@ impl<W: UiWriter> Agent<W> {
         // The agent will use todo_read to load the TODO once a session is established.
 
         // Initialize computer controller if enabled
+        #[cfg(feature = "computer-control")]
         let computer_controller = if config.computer_control.enabled {
             match g3_computer_control::create_controller() {
                 Ok(controller) => Some(controller),
@@ -280,8 +286,11 @@ impl<W: UiWriter> Agent<W> {
             todo_content: std::sync::Arc::new(tokio::sync::RwLock::new(String::new())),
             is_autonomous,
             quiet,
+            #[cfg(feature = "computer-control")]
             computer_controller,
+            #[cfg(feature = "computer-control")]
             webdriver_session: std::sync::Arc::new(tokio::sync::RwLock::new(None)),
+            #[cfg(feature = "computer-control")]
             webdriver_process: std::sync::Arc::new(tokio::sync::RwLock::new(None)),
             tool_call_count: 0,
             requirements_sha: None,
@@ -2757,8 +2766,11 @@ impl<W: UiWriter> Agent<W> {
             ui_writer: &self.ui_writer,
             session_id: self.session_id.as_deref(),
             working_dir,
+            #[cfg(feature = "computer-control")]
             computer_controller: self.computer_controller.as_ref(),
+            #[cfg(feature = "computer-control")]
             webdriver_session: &self.webdriver_session,
+            #[cfg(feature = "computer-control")]
             webdriver_process: &self.webdriver_process,
             background_process_manager: &self.background_process_manager,
             todo_content: &self.todo_content,

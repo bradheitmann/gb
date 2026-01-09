@@ -48,6 +48,10 @@ readme = "README.md"
 # GB is a fork of G3 by Dhanji R. Prasanna (https://github.com/dhanji/g3)
 # Based on Block AI Research - Adversarial Cooperation in Code Synthesis
 
+[features]
+default = []
+computer-control = ["g3-cli/computer-control"]
+
 [dependencies]
 g3-cli = { path = "crates/g3-cli" }
 gb-personas = { path = "crates/gb-personas" }

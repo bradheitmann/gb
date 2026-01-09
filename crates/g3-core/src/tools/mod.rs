@@ -13,6 +13,7 @@ pub mod file_ops;
 pub mod misc;
 pub mod shell;
 pub mod todo;
+#[cfg(feature = "computer-control")]
 pub mod webdriver;
 
 pub use executor::ToolExecutor;

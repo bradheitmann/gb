@@ -8,7 +8,7 @@ description = "Core engine for G3 AI coding agent"
 g3-providers = { path = "../g3-providers" }
 g3-config = { path = "../g3-config" }
 g3-execution = { path = "../g3-execution" }
-g3-computer-control = { path = "../g3-computer-control" }
+g3-computer-control = { path = "../g3-computer-control", optional = true }
 tokio = { workspace = true }
 reqwest = { workspace = true }
 anyhow = { workspace = true }
@@ -45,6 +45,10 @@ walkdir = "2.4"
 
 const_format = "0.2"
 base64 = "0.22.1"
+
+[features]
+default = []
+computer-control = ["g3-computer-control"]
 
 [dev-dependencies]
 tempfile = "3.8"
