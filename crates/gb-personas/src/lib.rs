@@ -44,6 +44,14 @@
 use serde::{Deserialize, Serialize};
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// ✨💖 Security Constants 💖✨
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Maximum length for additional_context to prevent prompt injection DoS
+/// 4KB is enough for reasonable context without enabling massive injections
+pub const MAX_ADDITIONAL_CONTEXT_LENGTH: usize = 4096;
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // ✨💖 Core Types 💖✨
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -199,7 +207,13 @@ pub struct PersonaConfig {
     pub glitter_mode: bool,
     /// Emoji density level
     pub emoji_density: EmojiDensity,
-    /// Additional context to inject
+    /// Additional context to inject into the persona prompt.
+    ///
+    /// # Security Note
+    /// This field is directly interpolated into the system prompt.
+    /// - Truncated to MAX_ADDITIONAL_CONTEXT_LENGTH (4KB) to prevent DoS
+    /// - Should only contain trusted user-controlled content
+    /// - Never populate from untrusted external sources
     pub additional_context: Option<String>,
     /// Custom agent name override
     pub agent_name: Option<String>,
@@ -594,7 +608,19 @@ The dialectical loop works because of the productive tension between personas.
         role_context = role_context,
         language_guide = language_guide,
         glitter_section = glitter_section,
-        additional = config.additional_context.as_deref().unwrap_or(""),
+        // SECURITY: Truncate additional_context to prevent prompt injection DoS
+        additional = config.additional_context.as_deref()
+            .map(|s| if s.len() > MAX_ADDITIONAL_CONTEXT_LENGTH {
+                // Safe truncation at char boundary
+                let mut end = MAX_ADDITIONAL_CONTEXT_LENGTH;
+                while !s.is_char_boundary(end) && end > 0 {
+                    end -= 1;
+                }
+                &s[..end]
+            } else {
+                s
+            })
+            .unwrap_or(""),
         tagline = data.summary.split('.').next().unwrap_or(""),
     )
 }
@@ -830,7 +856,8 @@ pub fn activate_persona_minimal(persona: Persona) -> String {
     let data = get_persona_data(persona);
     format!(
         "{} You are {}. {} Use phrases like: {}. Stay in character!",
-        data.emoji_favorites[0],
+        // SECURITY: Use safe array access to prevent panic on empty arrays
+        data.emoji_favorites.first().unwrap_or(&""),
         data.display_name,
         data.summary.split('.').next().unwrap_or(""),
         data.signature_phrases.iter()

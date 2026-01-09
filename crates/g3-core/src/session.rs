@@ -9,9 +9,45 @@ use crate::paths::{ensure_session_dir, get_context_summary_file, get_g3_dir, get
 use g3_providers::MessageRole;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Security Constants
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Maximum session file size (50MB) to prevent memory exhaustion attacks
+pub const MAX_SESSION_FILE_SIZE: u64 = 50 * 1024 * 1024;
+
+/// Read a file with size limit enforcement.
+/// Returns None if file doesn't exist or exceeds size limit.
+pub fn read_file_with_limit(path: &Path, max_size: u64) -> Option<String> {
+    if !path.exists() {
+        return None;
+    }
+
+    // SECURITY: Check file size before reading to prevent memory exhaustion
+    match std::fs::metadata(path) {
+        Ok(metadata) => {
+            if metadata.len() > max_size {
+                warn!(
+                    "File {:?} exceeds size limit ({} > {} bytes), skipping",
+                    path,
+                    metadata.len(),
+                    max_size
+                );
+                return None;
+            }
+        }
+        Err(e) => {
+            warn!("Failed to get metadata for {:?}: {}", path, e);
+            return None;
+        }
+    }
+
+    std::fs::read_to_string(path).ok()
+}
 
 /// Format token count in compact form (e.g., 1K, 2M, 100b, 200K)
 /// Clamps to 4 chars right-aligned.
@@ -57,7 +93,11 @@ pub fn generate_session_id(description: &str, agent_name: Option<&str>) -> Strin
     // For agent mode, use agent name as prefix for clarity
     // For regular mode, use first 5 words of description
     let prefix = if let Some(name) = agent_name {
-        name.to_string()
+        // SECURITY: Sanitize agent name for path safety (defense-in-depth)
+        name.chars()
+            .filter(|c| c.is_alphanumeric() || *c == '-' || *c == '_')
+            .take(64)
+            .collect::<String>()
     } else {
         description
             .chars()
@@ -255,15 +295,10 @@ pub fn log_error_to_session(
     let logs_dir = get_logs_dir();
     let filename = logs_dir.join(format!("g3_session_{}.json", session_id));
 
-    // Read existing session log
-    let mut session_data: serde_json::Value = if filename.exists() {
-        match std::fs::read_to_string(&filename) {
-            Ok(content) => serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({})),
-            Err(_) => serde_json::json!({}),
-        }
-    } else {
-        serde_json::json!({})
-    };
+    // Read existing session log with size limit enforcement
+    let mut session_data: serde_json::Value = read_file_with_limit(&filename, MAX_SESSION_FILE_SIZE)
+        .and_then(|content| serde_json::from_str(&content).ok())
+        .unwrap_or_else(|| serde_json::json!({}));
 
     // Build error message with forensic context
     let error_message = if let Some(context) = forensic_context {
@@ -300,11 +335,8 @@ pub fn log_error_to_session(
 ///
 /// Returns the messages to add to the context window, or None if restoration failed.
 pub fn restore_from_session_log(session_log_path: &PathBuf) -> Option<Vec<(MessageRole, String)>> {
-    if !session_log_path.exists() {
-        return None;
-    }
-
-    let json = std::fs::read_to_string(session_log_path).ok()?;
+    // SECURITY: Use size-limited file reading to prevent memory exhaustion
+    let json = read_file_with_limit(session_log_path, MAX_SESSION_FILE_SIZE)?;
     let session_data: serde_json::Value = serde_json::from_str(&json).ok()?;
 
     let context_window = session_data.get("context_window")?;

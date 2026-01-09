@@ -712,7 +712,22 @@ async fn run_agent_mode(
         .init();
 
     let output = SimpleOutput::new();
-    
+
+    // SECURITY: Validate agent_name to prevent path traversal attacks
+    // Only allow alphanumeric characters, underscores, and hyphens
+    if !agent_name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+        anyhow::bail!(
+            "Invalid agent name '{}': must contain only letters, numbers, underscores, and hyphens",
+            agent_name
+        );
+    }
+    if agent_name.is_empty() || agent_name.len() > 64 {
+        anyhow::bail!(
+            "Invalid agent name '{}': must be 1-64 characters",
+            agent_name
+        );
+    }
+
     // Determine workspace directory (current dir if not specified)
     let workspace_dir = workspace.unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
     
@@ -2565,7 +2580,7 @@ async fn run_autonomous(
         output.print(""); // Empty line for readability
 
         // Execute player task with retry on error
-        let mut _player_retry_count = 0;
+        let mut player_retry_count = 0;
         const MAX_PLAYER_RETRIES: u32 = 3;
         let mut player_failed = false;
 
@@ -2649,13 +2664,13 @@ async fn run_autonomous(
                         return Err(e);
                     }
 
-                    _player_retry_count += 1;
+                    player_retry_count += 1;
                     output.print(&format!(
                         "⚠️ Player error (attempt {}/{}): {}",
-                        _player_retry_count, MAX_PLAYER_RETRIES, e
+                        player_retry_count, MAX_PLAYER_RETRIES, e
                     ));
 
-                    if _player_retry_count >= MAX_PLAYER_RETRIES {
+                    if player_retry_count >= MAX_PLAYER_RETRIES {
                         output
                             .print("🔄 Max retries reached for player, marking turn as failed...");
                         player_failed = true;

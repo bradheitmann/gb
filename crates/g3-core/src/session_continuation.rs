@@ -8,6 +8,7 @@
 //! - `latest.json` is stored inside each session directory (`.g3/sessions/<session_id>/latest.json`)
 //! - Following the symlink gives access to the current session's continuation data
 
+use crate::session::{read_file_with_limit, MAX_SESSION_FILE_SIZE};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -345,13 +346,12 @@ pub fn has_valid_continuation() -> bool {
 
 /// Load the full context window from a session log file
 pub fn load_context_from_session_log(session_log_path: &Path) -> Result<Option<serde_json::Value>> {
-    if !session_log_path.exists() {
+    // SECURITY: Use size-limited file reading to prevent memory exhaustion
+    let Some(json) = read_file_with_limit(session_log_path, MAX_SESSION_FILE_SIZE) else {
         return Ok(None);
-    }
-    
-    let json = std::fs::read_to_string(session_log_path)?;
+    };
     let session_data: serde_json::Value = serde_json::from_str(&json)?;
-    
+
     Ok(Some(session_data))
 }
 
