@@ -147,7 +147,7 @@ impl Persona {
 }
 
 /// Agent role in the Gb coach-player architecture
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AgentRole {
     // Core dialectical pair
@@ -781,7 +781,7 @@ fn get_role_context(role: AgentRole) -> &'static str {
     }
 }
 
-fn get_language_guide(lang: Language) -> String {
+fn get_language_guide(lang: Language) -> &'static str {
     match lang {
         Language::Rust => r#"
 ## Rust Guidelines
@@ -790,7 +790,7 @@ fn get_language_guide(lang: Language) -> String {
 - Error handling with thiserror/anyhow
 - Tests with cargo test
 - Async with Tokio
-"#.to_string(),
+"#,
         Language::TypeScript => r#"
 ## TypeScript Guidelines
 
@@ -798,7 +798,7 @@ fn get_language_guide(lang: Language) -> String {
 - ESLint + Prettier
 - Tests with Jest/Vitest
 - Zod for validation
-"#.to_string(),
+"#,
         Language::Python => r#"
 ## Python Guidelines
 
@@ -806,7 +806,7 @@ fn get_language_guide(lang: Language) -> String {
 - Black + ruff for formatting
 - pytest for testing
 - Pydantic for validation
-"#.to_string(),
+"#,
         Language::Swift => r#"
 ## Swift Guidelines
 
@@ -814,7 +814,7 @@ fn get_language_guide(lang: Language) -> String {
 - async/await for concurrency
 - XCTest for testing
 - SwiftLint for linting
-"#.to_string(),
+"#,
     }
 }
 
@@ -930,6 +930,52 @@ mod tests {
         for role in roles {
             let prompt = activate_gb_role(role, Language::Rust, false);
             assert!(!prompt.is_empty());
+        }
+    }
+
+    #[test]
+    fn test_custom_persona() {
+        // Custom persona should return valid data even if placeholder
+        let data = get_persona_data(Persona::Custom);
+        assert_eq!(data.display_name, "CUSTOM");
+        assert!(!data.core_traits.is_empty());
+
+        // Custom persona should activate without panicking
+        let prompt = activate_persona(Persona::Custom, PersonaConfig::default());
+        assert!(prompt.contains("CUSTOM"));
+    }
+
+    #[test]
+    fn test_additional_context_injection() {
+        let prompt = activate_persona(Persona::Regina, PersonaConfig {
+            role: AgentRole::Coach,
+            additional_context: Some("This is custom context.".to_string()),
+            ..Default::default()
+        });
+        assert!(prompt.contains("This is custom context."));
+    }
+
+    #[test]
+    fn test_agent_name_override() {
+        let prompt = activate_persona(Persona::Regina, PersonaConfig {
+            role: AgentRole::Coach,
+            agent_name: Some("QUEEN_BEE".to_string()),
+            ..Default::default()
+        });
+        assert!(prompt.contains("QUEEN_BEE"));
+    }
+
+    #[test]
+    fn test_all_languages() {
+        let languages = [
+            Language::Rust,
+            Language::TypeScript,
+            Language::Python,
+            Language::Swift,
+        ];
+        for lang in languages {
+            let guide = get_language_guide(lang);
+            assert!(!guide.is_empty());
         }
     }
 }
