@@ -87,8 +87,13 @@ impl ColorTheme {
         Ok(theme)
     }
     
-    /// Get the default retro sci-fi theme (inspired by Alien terminals)
+    /// Get the default theme - Glitter is GB's signature aesthetic ✨💖👑
     pub fn default() -> Self {
+        Self::glitter()
+    }
+
+    /// Get the retro sci-fi theme (G3's original - inspired by Alien terminals)
+    pub fn retro_sci_fi() -> Self {
         ColorTheme {
             name: "Retro Sci-Fi".to_string(),
             terminal_green: ColorValue::Rgb { r: 136, g: 244, b: 152 },
@@ -142,9 +147,9 @@ impl ColorTheme {
     pub fn load(theme_name: Option<&str>) -> Result<Self> {
         match theme_name {
             None => Ok(Self::default()),
-            Some("default") | Some("retro") => Ok(Self::default()),
+            Some("default") | Some("glitter") | Some("pink") | Some("gb") => Ok(Self::default()),
+            Some("retro") | Some("retro-sci-fi") => Ok(Self::retro_sci_fi()),
             Some("dracula") => Ok(Self::dracula()),
-            Some("glitter") | Some("pink") | Some("gb") => Ok(Self::glitter()),
             Some(path) => {
                 // Try to load from file
                 if Path::new(path).exists() {
