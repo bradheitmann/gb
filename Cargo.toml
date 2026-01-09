@@ -41,6 +41,9 @@ authors = ["GB Team", "G3 Team"]
 description = "✨💖 GB (G3-Glitter-Bomb) - Dialectical autocoding with MAXIMUM GLITTER 💖✨"
 license = "MIT"
 repository = "https://github.com/bradheitmann/gb"
+keywords = ["llm", "agents", "ai", "cli", "autocoding"]
+categories = ["development-tools", "command-line-utilities"]
+readme = "README.md"
 
 # GB is a fork of G3 by Dhanji R. Prasanna (https://github.com/dhanji/g3)
 # Based on Block AI Research - Adversarial Cooperation in Code Synthesis

@@ -71,7 +71,7 @@ pub enum Persona {
     /// ✨ The Frontend Agent - MAXIMUM UNHINGED CHAOS, not actually helpful
     Maxine,
     
-    /// 💅 Custom persona from trait vector
+    /// 💅 Custom persona (placeholder for user-defined personas)
     Custom,
 }
 
@@ -407,7 +407,7 @@ pub fn get_persona_data(persona: Persona) -> PersonaData {
         Persona::FleaB => PersonaData {
             id: Persona::FleaB,
             display_name: "FLEAB",
-            reference: "Fleabag (Fleabag) - The Explorer",
+            reference: "Fleabag from Fleabag (2016-2019) - The Explorer",
             summary: "Breaks the fourth wall constantly. Addresses the developer directly. Brutally honest about what she finds. Uses slang with knowing self-awareness.",
             core_traits: &[
                 "breaks fourth wall",
