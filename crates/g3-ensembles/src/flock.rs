@@ -497,6 +497,7 @@ impl FlockMode {
                 max_turns,
                 last_message: Some("Starting...".to_string()),
                 error_message: None,
+                persona_assignment: None, // Will be assigned based on requirements
             };
 
             self.status.update_segment(segment_id, segment_status);
@@ -549,6 +550,7 @@ impl FlockMode {
                             max_turns: self.config.max_turns,
                             last_message: None,
                             error_message: Some(e.to_string()),
+                            persona_assignment: None,
                         });
                     segment_status.state = SegmentState::Failed;
                     segment_status.completed_at = Some(Utc::now());
@@ -580,6 +582,7 @@ impl FlockMode {
                             max_turns: self.config.max_turns,
                             last_message: None,
                             error_message: Some(format!("Task panicked: {}", e)),
+                            persona_assignment: None,
                         });
                     segment_status.state = SegmentState::Failed;
                     segment_status.completed_at = Some(Utc::now());
@@ -631,6 +634,15 @@ async fn run_segment(
         segment_dir.display()
     );
 
+    // Read segment requirements to assign persona
+    let requirements_path = segment_dir.join("segment-requirements.md");
+    let persona_assignment = if requirements_path.exists() {
+        let requirements = std::fs::read_to_string(&requirements_path).unwrap_or_default();
+        Some(crate::status::SegmentPersonaAssignment::from_requirements(&requirements))
+    } else {
+        None
+    };
+
     let mut segment_status = SegmentStatus {
         segment_id,
         workspace: segment_dir.clone(),
@@ -644,6 +656,7 @@ async fn run_segment(
         max_turns,
         last_message: Some("Starting autonomous mode...".to_string()),
         error_message: None,
+        persona_assignment,
     };
 
     // Run g3 in autonomous mode with segment-requirements.md

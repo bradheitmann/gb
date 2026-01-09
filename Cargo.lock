@@ -1464,6 +1464,7 @@ dependencies = [
  "clap",
  "g3-config",
  "g3-core",
+ "gb-personas",
  "serde",
  "serde_json",
  "tempfile",

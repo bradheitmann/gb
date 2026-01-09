@@ -1,9 +1,164 @@
 //! Status tracking for flock mode
+//!
+//! ✨💖 Extended for GB with persona tracking 💖✨
 
 use chrono::{DateTime, Utc};
+use gb_personas::{AgentRole, Persona};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
+
+/// Persona assignment for a segment
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SegmentPersonaAssignment {
+    /// The assigned persona
+    pub persona: Persona,
+    /// The agent role for this segment
+    pub role: AgentRole,
+    /// Why this persona was assigned (for debugging/display)
+    pub assignment_reason: String,
+}
+
+impl Default for SegmentPersonaAssignment {
+    fn default() -> Self {
+        Self {
+            persona: Persona::Gretchen,
+            role: AgentRole::Player,
+            assignment_reason: "Default player assignment".to_string(),
+        }
+    }
+}
+
+impl SegmentPersonaAssignment {
+    /// Create a new persona assignment
+    pub fn new(persona: Persona, role: AgentRole, reason: impl Into<String>) -> Self {
+        Self {
+            persona,
+            role,
+            assignment_reason: reason.into(),
+        }
+    }
+
+    /// Assign persona based on segment requirements keywords
+    ///
+    /// Analyzes the requirements text and assigns the most appropriate
+    /// specialist persona based on detected keywords.
+    pub fn from_requirements(requirements: &str) -> Self {
+        let lower = requirements.to_lowercase();
+
+        // Security keywords → Daria (Security Auditor)
+        if lower.contains("security")
+            || lower.contains("auth")
+            || lower.contains("encrypt")
+            || lower.contains("vulnerability")
+            || lower.contains("injection")
+            || lower.contains("xss")
+            || lower.contains("csrf")
+            || lower.contains("permission")
+            || lower.contains("credential")
+        {
+            return Self::new(
+                Persona::Daria,
+                AgentRole::Security,
+                "Security-related keywords detected",
+            );
+        }
+
+        // Architecture keywords → Monica (Architect)
+        if lower.contains("architect")
+            || lower.contains("structure")
+            || lower.contains("design pattern")
+            || lower.contains("module")
+            || lower.contains("system design")
+            || lower.contains("api design")
+            || lower.contains("schema")
+            || lower.contains("database")
+        {
+            return Self::new(
+                Persona::Monica,
+                AgentRole::Architect,
+                "Architecture-related keywords detected",
+            );
+        }
+
+        // Debug/fix keywords → Phoebe (Debugger)
+        if lower.contains("bug")
+            || lower.contains("fix")
+            || lower.contains("debug")
+            || lower.contains("error handling")
+            || lower.contains("crash")
+            || lower.contains("issue")
+            || lower.contains("broken")
+        {
+            return Self::new(
+                Persona::Phoebe,
+                AgentRole::Debugger,
+                "Debug/fix keywords detected",
+            );
+        }
+
+        // Refactor keywords → Rachel (Refactorer)
+        if lower.contains("refactor")
+            || lower.contains("clean")
+            || lower.contains("reorganize")
+            || lower.contains("rename")
+            || lower.contains("style")
+            || lower.contains("naming")
+            || lower.contains("lint")
+        {
+            return Self::new(
+                Persona::Rachel,
+                AgentRole::Refactorer,
+                "Refactoring keywords detected",
+            );
+        }
+
+        // Frontend keywords → Maxine (Frontend)
+        if lower.contains("frontend")
+            || lower.contains("ui")
+            || lower.contains("css")
+            || lower.contains("component")
+            || lower.contains("react")
+            || lower.contains("vue")
+            || lower.contains("html")
+            || lower.contains("styling")
+        {
+            return Self::new(
+                Persona::Maxine,
+                AgentRole::Frontend,
+                "Frontend keywords detected",
+            );
+        }
+
+        // Exploration keywords → FleaB (Explorer)
+        if lower.contains("explore")
+            || lower.contains("research")
+            || lower.contains("investigate")
+            || lower.contains("analyze")
+            || lower.contains("understand")
+            || lower.contains("document")
+        {
+            return Self::new(
+                Persona::FleaB,
+                AgentRole::Explorer,
+                "Exploration keywords detected",
+            );
+        }
+
+        // Default: Gretchen (Player) - general implementation
+        Self::default()
+    }
+
+    /// Get the display string for this assignment
+    pub fn display(&self) -> String {
+        format!(
+            "{} ({:?}) - {}",
+            self.persona.display_name(),
+            self.role,
+            self.assignment_reason
+        )
+    }
+}
 
 /// Status of an individual segment worker
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,6 +198,12 @@ pub struct SegmentStatus {
 
     /// Error message (if failed)
     pub error_message: Option<String>,
+
+    // ✨💖 GB Persona Extensions 💖✨
+
+    /// Assigned persona for this segment
+    #[serde(default)]
+    pub persona_assignment: Option<SegmentPersonaAssignment>,
 }
 
 /// State of a segment worker
@@ -240,8 +401,26 @@ impl FlockStatus {
         segments.sort_by_key(|(id, _)| *id);
 
         for (id, segment) in segments {
-            report.push_str(&format!("\n\n   Segment {}:", id));
+            // Show persona assignment if present
+            let persona_label = if let Some(ref assignment) = segment.persona_assignment {
+                format!(" [{}]", assignment.persona.display_name())
+            } else {
+                String::new()
+            };
+            report.push_str(&format!("\n\n   Segment {}{}:", id, persona_label));
             report.push_str(&format!("\n      Status: {}", segment.state));
+            // Show persona details if assigned
+            if let Some(ref assignment) = segment.persona_assignment {
+                report.push_str(&format!(
+                    "\n      Persona: {} ({:?})",
+                    assignment.persona.display_name(),
+                    assignment.role
+                ));
+                report.push_str(&format!(
+                    "\n      Assignment: {}",
+                    assignment.assignment_reason
+                ));
+            }
             report.push_str(&format!(
                 "\n      Workspace: {}",
                 segment.workspace.display()

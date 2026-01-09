@@ -42,6 +42,22 @@ pub struct SessionContinuation {
     pub todo_snapshot: Option<String>,
     /// Working directory where the session was running
     pub working_directory: String,
+
+    // ✨💖 GB Persona Extensions 💖✨
+
+    /// Current GB persona (e.g., "regina", "gretchen", "monica")
+    /// Stored as string for flexibility and to avoid dependency on gb-personas crate
+    #[serde(default)]
+    pub gb_persona: Option<String>,
+
+    /// Current GB agent role (e.g., "coach", "player", "architect")
+    #[serde(default)]
+    pub gb_role: Option<String>,
+
+    /// History of persona switches during this session
+    /// Each entry is (persona_name, timestamp)
+    #[serde(default)]
+    pub gb_persona_history: Vec<(String, String)>,
 }
 
 impl SessionContinuation {
@@ -67,7 +83,58 @@ impl SessionContinuation {
             context_percentage,
             todo_snapshot,
             working_directory,
+            // GB persona fields default to None
+            gb_persona: None,
+            gb_role: None,
+            gb_persona_history: Vec::new(),
         }
+    }
+
+    /// Create a new session continuation with GB persona info
+    pub fn new_with_persona(
+        is_agent_mode: bool,
+        agent_name: Option<String>,
+        session_id: String,
+        final_output_summary: Option<String>,
+        session_log_path: String,
+        context_percentage: f32,
+        todo_snapshot: Option<String>,
+        working_directory: String,
+        gb_persona: Option<String>,
+        gb_role: Option<String>,
+    ) -> Self {
+        let mut continuation = Self::new(
+            is_agent_mode,
+            agent_name,
+            session_id,
+            final_output_summary,
+            session_log_path,
+            context_percentage,
+            todo_snapshot,
+            working_directory,
+        );
+        continuation.gb_persona = gb_persona.clone();
+        continuation.gb_role = gb_role;
+        // Record initial persona in history
+        if let Some(persona) = gb_persona {
+            continuation.gb_persona_history.push((
+                persona,
+                chrono::Utc::now().to_rfc3339(),
+            ));
+        }
+        continuation
+    }
+
+    /// Record a persona switch
+    pub fn switch_persona(&mut self, new_persona: String, new_role: Option<String>) {
+        self.gb_persona = Some(new_persona.clone());
+        if let Some(role) = new_role {
+            self.gb_role = Some(role);
+        }
+        self.gb_persona_history.push((
+            new_persona,
+            chrono::Utc::now().to_rfc3339(),
+        ));
     }
 
     /// Check if the context can be fully restored (< 80% used)
