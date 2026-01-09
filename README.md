@@ -262,10 +262,13 @@ Assigns specialist personas to segments based on keywords:
 | Command | Description |
 |---------|-------------|
 | `/personas` | List all 8 personas with slang levels |
+| `/persona <name>` | Switch to a persona (e.g., `/persona daria`) |
 | `/slay` | Show stats with MAXIMUM GLITTER decoration ✨ |
 | `/fetch` | Mean Girls easter egg 💅 |
 | `/glitter` | Info about glitter mode |
 | `/help` | Show all commands |
+
+**Available Personas:** `regina`, `gretchen`, `monica`, `phoebe`, `rachel`, `daria`, `fleab`, `maxine`
 
 ### Theme Options
 ```bash

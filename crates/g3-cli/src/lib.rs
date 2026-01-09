@@ -1683,10 +1683,13 @@ async fn run_interactive<W: UiWriter>(
                                 output.print("  exit/quit  - Exit the interactive session");
                                 output.print("");
                                 output.print("✨💖 GB Commands:");
-                                output.print("  /personas  - List all available personas");
-                                output.print("  /slay      - Show stats with MAXIMUM GLITTER 💅");
-                                output.print("  /fetch     - Check if it's fetch yet");
-                                output.print("  /glitter   - Toggle glitter mode info");
+                                output.print("  /personas      - List all available personas with details");
+                                output.print("  /persona <n>   - Switch to persona:");
+                                output.print("                   regina, gretchen, monica, phoebe,");
+                                output.print("                   rachel, daria, fleab, maxine");
+                                output.print("  /slay          - Show stats with MAXIMUM GLITTER 💅");
+                                output.print("  /fetch         - Check if it's fetch yet");
+                                output.print("  /glitter       - Glitter mode info");
                                 output.print("");
                                 continue;
                             }
@@ -1763,7 +1766,8 @@ async fn run_interactive<W: UiWriter>(
                                     output.print("");
                                 }
                                 output.print("═══════════════════════════════════════════════════════════");
-                                output.print("  Use /persona <name> to switch personas (coming soon)");
+                                output.print("  Use /persona <name> to switch personas");
+                                output.print("  Example: /persona daria");
                                 output.print("");
                                 continue;
                             }
@@ -1797,13 +1801,85 @@ async fn run_interactive<W: UiWriter>(
                                 output.print("");
                                 output.print("✨💖👑 GLITTER MODE 👑💖✨");
                                 output.print("");
-                                output.print("  Glitter mode controls emoji density in persona output.");
-                                output.print("  Currently: OFF (Elevated emoji density)");
+                                output.print("  Glitter mode adds MAXIMUM sparkle to persona output.");
+                                output.print("  Currently: ON by default (because this is GB 💖)");
                                 output.print("");
-                                output.print("  To enable MAXIMUM GLITTER, set in config:");
-                                output.print("    glitter_mode = true");
+                                output.print("  Features:");
+                                output.print("    - Extra emojis in all outputs");
+                                output.print("    - Dramatic reactions to everything");
+                                output.print("    - Pink hex codes where possible (#FF1493)");
+                                output.print("    - Success messages need at least 5 emojis");
                                 output.print("");
                                 output.print("  On Wednesdays, we ship pink code. 💅");
+                                output.print("");
+                                continue;
+                            }
+                            cmd if cmd.starts_with("/persona ") => {
+                                let persona_name = cmd.strip_prefix("/persona ").unwrap().trim().to_lowercase();
+                                let matched_persona = match persona_name.as_str() {
+                                    "regina" => Some(Persona::Regina),
+                                    "gretchen" => Some(Persona::Gretchen),
+                                    "monica" => Some(Persona::Monica),
+                                    "phoebe" => Some(Persona::Phoebe),
+                                    "rachel" => Some(Persona::Rachel),
+                                    "daria" => Some(Persona::Daria),
+                                    "fleab" | "flea" | "fleabag" => Some(Persona::FleaB),
+                                    "maxine" | "max" => Some(Persona::Maxine),
+                                    _ => None,
+                                };
+
+                                match matched_persona {
+                                    Some(persona) => {
+                                        let data = get_persona_data(persona);
+                                        output.print("");
+                                        output.print(&format!("✨ PERSONA SWITCHED TO: {} {} ✨",
+                                            data.emoji_favorites[0],
+                                            data.display_name
+                                        ));
+                                        output.print("");
+                                        output.print(&format!("  {}", data.summary));
+                                        output.print("");
+                                        output.print(&format!("  Slang Level: {}", persona.slang_level()));
+                                        output.print(&format!("  Role: {:?}", persona.recommended_role()));
+                                        output.print("");
+                                        output.print("  Sample phrases:");
+                                        for (situation, phrase) in data.signature_phrases.iter().take(3) {
+                                            output.print(&format!("    - {}: \"{}\"", situation, phrase));
+                                        }
+                                        output.print("");
+                                        output.print("  💖 Persona active for next task! 💖");
+                                        output.print("");
+                                        // TODO: Actually wire this into the agent's system prompt
+                                        // For now this is informational - full integration requires
+                                        // modifying the agent's prompt at runtime
+                                    }
+                                    None => {
+                                        output.print("");
+                                        output.print(&format!("❌ Unknown persona: '{}'", persona_name));
+                                        output.print("");
+                                        output.print("  Available personas:");
+                                        output.print("    regina, gretchen, monica, phoebe,");
+                                        output.print("    rachel, daria, fleab, maxine");
+                                        output.print("");
+                                        output.print("  Use /personas to see full details.");
+                                        output.print("");
+                                    }
+                                }
+                                continue;
+                            }
+                            "/persona" => {
+                                output.print("");
+                                output.print("💅 PERSONA SWITCHER 💅");
+                                output.print("");
+                                output.print("  Usage: /persona <name>");
+                                output.print("");
+                                output.print("  Examples:");
+                                output.print("    /persona regina    - Switch to Regina (Coach)");
+                                output.print("    /persona gretchen  - Switch to Gretchen (Player)");
+                                output.print("    /persona daria     - Switch to Daria (Security)");
+                                output.print("    /persona maxine    - Switch to Maxine (Frontend)");
+                                output.print("");
+                                output.print("  Use /personas to see all available personas.");
                                 output.print("");
                                 continue;
                             }
@@ -2456,7 +2532,7 @@ async fn run_autonomous(
 
         // Player mode: implement requirements (with coach feedback if available)
         // Using Gretchen persona (Player) from gb-personas
-        let player_persona = activate_gb_role(AgentRole::Player, Language::Rust, false);
+        let player_persona = activate_gb_role(AgentRole::Player, Language::Rust, true);
         let player_prompt = if coach_feedback.is_empty() {
             format!(
                 "{}\n\n---\n\n## IMPLEMENTATION TASK\n\nRead and implement the following requirements:\n\n{}\n\nRequirements SHA256: {}\n\nImplement this step by step, creating all necessary files and code. Stay in character!",
@@ -2675,7 +2751,7 @@ async fn run_autonomous(
 
         // Coach mode: critique the implementation
         // Using Regina persona (Coach) from gb-personas
-        let coach_persona = activate_gb_role(AgentRole::Coach, Language::Rust, false);
+        let coach_persona = activate_gb_role(AgentRole::Coach, Language::Rust, true);
         let coach_prompt = format!(
             "{}\n\n---\n\n## REVIEW TASK
 
