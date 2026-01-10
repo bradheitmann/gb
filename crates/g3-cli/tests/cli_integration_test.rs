@@ -16,14 +16,14 @@
 
 use std::process::Command;
 
-/// Get the path to the g3 binary.
+/// Get the path to the gb binary.
 /// In test mode, this will be in the target/debug directory.
-fn get_g3_binary() -> String {
+fn get_gb_binary() -> String {
     // When running tests, the binary is in target/debug/
     let mut path = std::env::current_exe().unwrap();
     path.pop(); // Remove test binary name
     path.pop(); // Remove deps
-    path.push("g3");
+    path.push("gb");
     path.to_string_lossy().to_string()
 }
 
@@ -33,15 +33,15 @@ fn get_g3_binary() -> String {
 
 #[test]
 fn test_help_flag_produces_output() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .arg("--help")
         .output()
-        .expect("Failed to execute g3 --help");
+        .expect("Failed to execute gb --help");
 
     // Help should succeed
     assert!(
         output.status.success(),
-        "g3 --help should exit successfully"
+        "gb --help should exit successfully"
     );
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -67,12 +67,12 @@ fn test_help_flag_produces_output() {
 
 #[test]
 fn test_short_help_flag() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .arg("-h")
         .output()
-        .expect("Failed to execute g3 -h");
+        .expect("Failed to execute gb -h");
 
-    assert!(output.status.success(), "g3 -h should exit successfully");
+    assert!(output.status.success(), "gb -h should exit successfully");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
@@ -87,33 +87,33 @@ fn test_short_help_flag() {
 
 #[test]
 fn test_version_flag_produces_output() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .arg("--version")
         .output()
-        .expect("Failed to execute g3 --version");
+        .expect("Failed to execute gb --version");
 
     assert!(
         output.status.success(),
-        "g3 --version should exit successfully"
+        "gb --version should exit successfully"
     );
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Should contain version number pattern (e.g., "g3 0.1.0")
+    // Should contain version number pattern (e.g., "gb 0.1.0")
     assert!(
-        stdout.contains("g3") || stdout.contains("0."),
+        stdout.contains("gb") || stdout.contains("0."),
         "Version output should contain program name or version number"
     );
 }
 
 #[test]
 fn test_short_version_flag() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .arg("-V")
         .output()
-        .expect("Failed to execute g3 -V");
+        .expect("Failed to execute gb -V");
 
-    assert!(output.status.success(), "g3 -V should exit successfully");
+    assert!(output.status.success(), "gb -V should exit successfully");
 }
 
 // =============================================================================
@@ -122,10 +122,10 @@ fn test_short_version_flag() {
 
 #[test]
 fn test_invalid_flag_produces_error() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .arg("--this-flag-does-not-exist")
         .output()
-        .expect("Failed to execute g3 with invalid flag");
+        .expect("Failed to execute gb with invalid flag");
 
     // Should fail with non-zero exit code
     assert!(
@@ -148,10 +148,10 @@ fn test_invalid_flag_produces_error() {
 #[test]
 fn test_agent_conflicts_with_autonomous() {
     // --agent conflicts with --autonomous
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--agent", "test", "--autonomous"])
         .output()
-        .expect("Failed to execute g3 with conflicting flags");
+        .expect("Failed to execute gb with conflicting flags");
 
     // Should fail due to conflicting arguments
     assert!(
@@ -162,10 +162,10 @@ fn test_agent_conflicts_with_autonomous() {
 
 #[test]
 fn test_planning_conflicts_with_autonomous() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--planning", "--autonomous"])
         .output()
-        .expect("Failed to execute g3 with conflicting flags");
+        .expect("Failed to execute gb with conflicting flags");
 
     assert!(
         !output.status.success(),
@@ -179,10 +179,10 @@ fn test_planning_conflicts_with_autonomous() {
 
 #[test]
 fn test_flock_mode_requires_workspace() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--project", "/tmp/test"])
         .output()
-        .expect("Failed to execute g3 with incomplete flock args");
+        .expect("Failed to execute gb with incomplete flock args");
 
     // Should fail because --flock-workspace and --segments are required
     assert!(
@@ -193,10 +193,10 @@ fn test_flock_mode_requires_workspace() {
 
 #[test]
 fn test_flock_mode_requires_segments() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--project", "/tmp/test", "--flock-workspace", "/tmp/ws"])
         .output()
-        .expect("Failed to execute g3 with incomplete flock args");
+        .expect("Failed to execute gb with incomplete flock args");
 
     // Should fail because --segments is required
     assert!(
@@ -212,10 +212,10 @@ fn test_flock_mode_requires_segments() {
 #[test]
 fn test_workspace_option_accepted() {
     // Just verify the option is recognized (don't actually run the agent)
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--workspace", "/tmp", "--help"])
         .output()
-        .expect("Failed to execute g3 with workspace option");
+        .expect("Failed to execute gb with workspace option");
 
     // --help should still work even with other options
     assert!(
@@ -230,10 +230,10 @@ fn test_workspace_option_accepted() {
 
 #[test]
 fn test_config_option_accepted() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--config", "/nonexistent/config.toml", "--help"])
         .output()
-        .expect("Failed to execute g3 with config option");
+        .expect("Failed to execute gb with config option");
 
     // --help should still work
     assert!(
@@ -248,10 +248,10 @@ fn test_config_option_accepted() {
 
 #[test]
 fn test_provider_option_accepted() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--provider", "anthropic", "--help"])
         .output()
-        .expect("Failed to execute g3 with provider option");
+        .expect("Failed to execute gb with provider option");
 
     assert!(
         output.status.success(),
@@ -265,10 +265,10 @@ fn test_provider_option_accepted() {
 
 #[test]
 fn test_quiet_option_accepted() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--quiet", "--help"])
         .output()
-        .expect("Failed to execute g3 with quiet option");
+        .expect("Failed to execute gb with quiet option");
 
     assert!(
         output.status.success(),
@@ -282,10 +282,10 @@ fn test_quiet_option_accepted() {
 
 #[test]
 fn test_machine_option_accepted() {
-    let output = Command::new(get_g3_binary())
+    let output = Command::new(get_gb_binary())
         .args(["--machine", "--help"])
         .output()
-        .expect("Failed to execute g3 with machine option");
+        .expect("Failed to execute gb with machine option");
 
     assert!(
         output.status.success(),

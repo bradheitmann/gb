@@ -55,6 +55,7 @@ mod tests {
             max_turns: 10,
             last_message: Some("Done".to_string()),
             error_message: None,
+            persona_assignment: None,
         };
 
         status.update_segment(1, segment1);
@@ -87,6 +88,7 @@ mod tests {
             max_turns: 10,
             last_message: Some("Done".to_string()),
             error_message: None,
+            persona_assignment: None,
         };
 
         let segment2 = SegmentStatus {
@@ -102,6 +104,7 @@ mod tests {
             max_turns: 10,
             last_message: Some("Error".to_string()),
             error_message: Some("Test error".to_string()),
+            persona_assignment: None,
         };
 
         status.update_segment(1, segment1);
@@ -139,6 +142,7 @@ mod tests {
             max_turns: 10,
             last_message: None,
             error_message: None,
+            persona_assignment: None,
         };
         status.update_segment(1, segment1);
 
@@ -159,6 +163,7 @@ mod tests {
             max_turns: 10,
             last_message: None,
             error_message: None,
+            persona_assignment: None,
         };
         status.update_segment(2, segment2);
 
@@ -179,6 +184,7 @@ mod tests {
             max_turns: 10,
             last_message: None,
             error_message: None,
+            persona_assignment: None,
         };
         status.update_segment(2, segment2_done);
 
@@ -208,6 +214,7 @@ mod tests {
             max_turns: 10,
             last_message: None,
             error_message: None,
+            persona_assignment: None,
         };
 
         let segment2 = SegmentStatus {
@@ -223,6 +230,7 @@ mod tests {
             max_turns: 10,
             last_message: None,
             error_message: Some("Error".to_string()),
+            persona_assignment: None,
         };
 
         let segment3 = SegmentStatus {
@@ -238,6 +246,7 @@ mod tests {
             max_turns: 10,
             last_message: None,
             error_message: None,
+            persona_assignment: None,
         };
 
         status.update_segment(1, segment1);
@@ -272,6 +281,7 @@ mod tests {
             max_turns: 10,
             last_message: Some("Done".to_string()),
             error_message: None,
+            persona_assignment: None,
         };
 
         status.update_segment(1, segment1);
@@ -311,6 +321,7 @@ mod tests {
             max_turns: 10,
             last_message: Some("Done".to_string()),
             error_message: None,
+            persona_assignment: None,
         };
 
         status.update_segment(1, segment1);
