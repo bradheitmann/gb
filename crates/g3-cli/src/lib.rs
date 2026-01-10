@@ -228,20 +228,77 @@ fn extract_coach_feedback_from_logs(
 
 /// Helper: Try to extract feedback from a session log file
 /// Returns None if extraction fails at any step (flattens the nested conditionals)
+/// Logs warnings for each failure point to aid debugging
 fn try_extract_feedback_from_log(
     log_file_path: &std::path::Path,
     session_id: &str,
     output: &SimpleOutput,
 ) -> Option<String> {
-    // Read and parse the log file
-    let log_content = std::fs::read_to_string(log_file_path).ok()?;
-    let log_json: serde_json::Value = serde_json::from_str(&log_content).ok()?;
+    // Read the log file
+    let log_content = match std::fs::read_to_string(log_file_path) {
+        Ok(content) => content,
+        Err(e) => {
+            warn!(
+                session_id = %session_id,
+                path = %log_file_path.display(),
+                error = %e,
+                "Failed to read coach session log file"
+            );
+            return None;
+        }
+    };
 
-    // Navigate to conversation history
-    let messages = log_json
-        .get("context_window")?
-        .get("conversation_history")?
-        .as_array()?;
+    // Parse as JSON
+    let log_json: serde_json::Value = match serde_json::from_str(&log_content) {
+        Ok(json) => json,
+        Err(e) => {
+            warn!(
+                session_id = %session_id,
+                path = %log_file_path.display(),
+                error = %e,
+                content_length = log_content.len(),
+                "Failed to parse coach session log as JSON"
+            );
+            return None;
+        }
+    };
+
+    // Navigate to context_window
+    let context_window = match log_json.get("context_window") {
+        Some(cw) => cw,
+        None => {
+            warn!(
+                session_id = %session_id,
+                "Coach session log missing 'context_window' field"
+            );
+            return None;
+        }
+    };
+
+    // Navigate to conversation_history
+    let conversation_history = match context_window.get("conversation_history") {
+        Some(ch) => ch,
+        None => {
+            warn!(
+                session_id = %session_id,
+                "Coach session log missing 'context_window.conversation_history' field"
+            );
+            return None;
+        }
+    };
+
+    // Get as array
+    let messages = match conversation_history.as_array() {
+        Some(arr) => arr,
+        None => {
+            warn!(
+                session_id = %session_id,
+                actual_type = %conversation_history,
+                "Coach session log 'conversation_history' is not an array"
+            );
+            return None;
+        }
+    };
 
     // Search backwards for final_output tool result
     for i in (0..messages.len()).rev() {
@@ -250,6 +307,12 @@ fn try_extract_feedback_from_log(
         }
     }
 
+    // If we get here, no final_output tool call was found
+    warn!(
+        session_id = %session_id,
+        message_count = messages.len(),
+        "No final_output tool call found in coach session - coach may not have completed properly"
+    );
     None
 }
 
@@ -324,7 +387,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 
 use g3_core::error_handling::{classify_error, ErrorType, RecoverableError};
 mod simple_output;
