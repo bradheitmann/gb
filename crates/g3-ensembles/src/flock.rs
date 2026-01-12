@@ -660,17 +660,38 @@ async fn run_segment(
     };
 
     // Run g3 in autonomous mode with segment-requirements.md
-    let mut child = Command::new(&g3_binary)
-        .arg("--workspace")
+    let mut cmd = Command::new(&g3_binary);
+    cmd.arg("--workspace")
         .arg(&segment_dir)
-        .arg("--autonomous")
-        .arg("--max-turns")
+        .arg("--autonomous");
+
+    // ✨💖 Pass assigned persona to worker if determined 💖✨
+    if let Some(ref assignment) = segment_status.persona_assignment {
+        use gb_personas::Persona;
+        let persona_name = match assignment.persona {
+            Persona::Regina => "regina",
+            Persona::Gretchen => "gretchen",
+            Persona::Monica => "monica",
+            Persona::Phoebe => "phoebe",
+            Persona::Rachel => "rachel",
+            Persona::Daria => "daria",
+            Persona::FleaB => "fleab",
+            Persona::Maxine => "maxine",
+            Persona::Custom => "custom",
+        };
+        cmd.arg("--agent").arg(persona_name);
+        debug!("Assigning persona {} to segment {}", persona_name, segment_id);
+    }
+
+    cmd.arg("--max-turns")
         .arg(max_turns.to_string())
         .arg("--requirements")
         .arg(std::fs::read_to_string(
             segment_dir.join("segment-requirements.md"),
         )?)
-        .arg("--quiet") // Disable session logging for workers
+        .arg("--quiet"); // Disable session logging for workers
+
+    let mut child = cmd
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()

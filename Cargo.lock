@@ -1425,6 +1425,7 @@ dependencies = [
  "g3-config",
  "g3-execution",
  "g3-providers",
+ "gb-personas",
  "rand",
  "regex",
  "reqwest",

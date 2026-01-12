@@ -1914,27 +1914,56 @@ async fn run_interactive<W: UiWriter>(
                                 match matched_persona {
                                     Some(persona) => {
                                         let data = get_persona_data(persona);
-                                        output.print("");
-                                        output.print(&format!("✨ PERSONA SWITCHED TO: {} {} ✨",
-                                            data.emoji_favorites[0],
-                                            data.display_name
-                                        ));
-                                        output.print("");
-                                        output.print(&format!("  {}", data.summary));
-                                        output.print("");
-                                        output.print(&format!("  Slang Level: {}", persona.slang_level()));
-                                        output.print(&format!("  Role: {:?}", persona.recommended_role()));
-                                        output.print("");
-                                        output.print("  Sample phrases:");
-                                        for (situation, phrase) in data.signature_phrases.iter().take(3) {
-                                            output.print(&format!("    - {}: \"{}\"", situation, phrase));
+                                        let role = persona.recommended_role();
+
+                                        // ✨💖 Actually switch the persona at runtime! 💖✨
+                                        match agent.switch_persona(
+                                            persona,
+                                            role,
+                                            Language::Rust, // TODO: detect from project
+                                            true,           // glitter_mode always ON 💖
+                                        ) {
+                                            Ok(()) => {
+                                                output.print("");
+                                                output.print(&format!(
+                                                    "✨ PERSONA SWITCHED TO: {} {} ✨",
+                                                    data.emoji_favorites[0], data.display_name
+                                                ));
+                                                output.print("");
+                                                output.print(&format!("  {}", data.summary));
+                                                output.print("");
+                                                output.print(&format!(
+                                                    "  Slang Level: {}",
+                                                    persona.slang_level()
+                                                ));
+                                                output.print(&format!("  Role: {:?}", role));
+                                                output.print("");
+                                                output.print("  Sample phrases:");
+                                                for (situation, phrase) in
+                                                    data.signature_phrases.iter().take(3)
+                                                {
+                                                    output.print(&format!(
+                                                        "    - {}: \"{}\"",
+                                                        situation, phrase
+                                                    ));
+                                                }
+                                                output.print("");
+                                                output.print("  ✅ System prompt updated successfully!");
+                                                output.print(&format!(
+                                                    "  💖 {} is now active! 💖",
+                                                    data.display_name
+                                                ));
+                                                output.print("");
+                                            }
+                                            Err(e) => {
+                                                output.print("");
+                                                output.print(&format!(
+                                                    "❌ Failed to switch persona: {}",
+                                                    e
+                                                ));
+                                                output.print("");
+                                            }
                                         }
-                                        output.print("");
-                                        output.print("  💖 Persona active for next task! 💖");
-                                        output.print("");
-                                        // TODO: Actually wire this into the agent's system prompt
-                                        // For now this is informational - full integration requires
-                                        // modifying the agent's prompt at runtime
                                     }
                                     None => {
                                         output.print("");

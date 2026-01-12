@@ -127,6 +127,16 @@ pub struct Agent<W: UiWriter> {
     is_agent_mode: bool,
     /// Name of the agent if running in agent mode (e.g., "fowler", "pike")
     agent_name: Option<String>,
+
+    // ✨💖 GB Persona Extensions 💖✨
+
+    /// Current GB persona (e.g., "regina", "gretchen", "monica")
+    /// Tracks the active persona for this agent session
+    gb_persona: Option<String>,
+
+    /// Current GB agent role (e.g., "coach", "player", "architect")
+    /// Corresponds to AgentRole from gb-personas crate
+    gb_role: Option<String>,
 }
 
 impl<W: UiWriter> Agent<W> {
@@ -302,6 +312,8 @@ impl<W: UiWriter> Agent<W> {
             pending_images: Vec::new(),
             is_agent_mode: false,
             agent_name: None,
+            gb_persona: None,
+            gb_role: None,
         })
     }
 
@@ -1404,18 +1416,34 @@ impl<W: UiWriter> Agent<W> {
         let working_directory = std::env::current_dir()
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| ".".to_string());
-        
-        let continuation = SessionContinuation::new(
-            self.is_agent_mode,
-            self.agent_name.clone(),
-            session_id,
-            final_output_summary,
-            session_log_path.to_string_lossy().to_string(),
-            self.context_window.percentage_used(),
-            todo_snapshot,
-            working_directory,
-        );
-        
+
+        // Use new_with_persona if GB persona is set, otherwise use regular new
+        let continuation = if self.gb_persona.is_some() || self.gb_role.is_some() {
+            SessionContinuation::new_with_persona(
+                self.is_agent_mode,
+                self.agent_name.clone(),
+                session_id,
+                final_output_summary,
+                session_log_path.to_string_lossy().to_string(),
+                self.context_window.percentage_used(),
+                todo_snapshot,
+                working_directory,
+                self.gb_persona.clone(),
+                self.gb_role.clone(),
+            )
+        } else {
+            SessionContinuation::new(
+                self.is_agent_mode,
+                self.agent_name.clone(),
+                session_id,
+                final_output_summary,
+                session_log_path.to_string_lossy().to_string(),
+                self.context_window.percentage_used(),
+                todo_snapshot,
+                working_directory,
+            )
+        };
+
         if let Err(e) = save_continuation(&continuation) {
             error!("Failed to save session continuation: {}", e);
         } else {
@@ -1429,6 +1457,94 @@ impl<W: UiWriter> Agent<W> {
         self.is_agent_mode = true;
         self.agent_name = Some(agent_name.to_string());
         debug!("Agent mode enabled for agent: {}", agent_name);
+    }
+
+    /// Set GB persona information for session tracking
+    /// Called when activating a GB persona to enable persona-aware session continuation
+    pub fn set_persona(&mut self, persona_name: &str, role: Option<&str>) {
+        self.gb_persona = Some(persona_name.to_string());
+        self.gb_role = role.map(|r| r.to_string());
+        debug!(
+            "GB persona set: {} (role: {:?})",
+            persona_name,
+            self.gb_role
+        );
+    }
+
+    /// Get the current GB persona, if set
+    pub fn get_persona(&self) -> Option<&str> {
+        self.gb_persona.as_deref()
+    }
+
+    /// Get the current GB role, if set
+    pub fn get_role(&self) -> Option<&str> {
+        self.gb_role.as_deref()
+    }
+
+    /// Switch to a new GB persona at runtime
+    /// This regenerates the system prompt and updates the agent's persona tracking
+    pub fn switch_persona(
+        &mut self,
+        persona: gb_personas::Persona,
+        role: gb_personas::AgentRole,
+        language: gb_personas::Language,
+        glitter_mode: bool,
+    ) -> Result<()> {
+        use gb_personas::{activate_persona, EmojiDensity, PersonaConfig};
+
+        // Generate new system prompt with the selected persona
+        let new_system_prompt = activate_persona(
+            persona,
+            PersonaConfig {
+                role,
+                language,
+                glitter_mode,
+                emoji_density: if glitter_mode {
+                    EmojiDensity::Maximum
+                } else {
+                    EmojiDensity::Elevated
+                },
+                ..Default::default()
+            },
+        );
+
+        // Replace the system message (first message in context window)
+        if self.context_window.conversation_history.is_empty() {
+            anyhow::bail!("Cannot switch persona: no system message in context window");
+        }
+
+        if !matches!(
+            self.context_window.conversation_history[0].role,
+            MessageRole::System
+        ) {
+            anyhow::bail!(
+                "Cannot switch persona: first message is not a system message"
+            );
+        }
+
+        // Update the system message content
+        let old_tokens = ContextWindow::estimate_tokens(
+            &self.context_window.conversation_history[0].content
+        );
+        let new_tokens = ContextWindow::estimate_tokens(&new_system_prompt);
+
+        self.context_window.conversation_history[0].content = new_system_prompt;
+
+        // Update token counts
+        self.context_window.used_tokens =
+            self.context_window.used_tokens.saturating_sub(old_tokens) + new_tokens;
+
+        // Track the persona change
+        let persona_name = format!("{:?}", persona).to_lowercase();
+        let role_name = format!("{:?}", role).to_lowercase();
+        self.set_persona(&persona_name, Some(&role_name));
+
+        debug!(
+            "Switched persona to {} ({:?}), tokens: {} -> {}",
+            persona_name, role, old_tokens, new_tokens
+        );
+
+        Ok(())
     }
 
     /// Initialize session ID manually (primarily for testing).
@@ -1462,9 +1578,20 @@ impl<W: UiWriter> Agent<W> {
         continuation: &crate::session_continuation::SessionContinuation,
     ) -> Result<bool> {
         use std::path::PathBuf;
-        
+
         let session_log_path = PathBuf::from(&continuation.session_log_path);
-        
+
+        // ✨💖 Restore GB persona if it was set 💖✨
+        if let Some(ref persona) = continuation.gb_persona {
+            self.gb_persona = Some(persona.clone());
+            self.gb_role = continuation.gb_role.clone();
+            debug!(
+                "Restored GB persona: {} (role: {:?})",
+                persona,
+                self.gb_role
+            );
+        }
+
         // If context < 80%, try to restore full context
         if continuation.can_restore_full_context() && session_log_path.exists() {
             // Load the session log
