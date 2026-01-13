@@ -3,6 +3,7 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
 use g3_config::Config;
+use gb_personas::{AgentRole, Persona};
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -10,6 +11,7 @@ use tokio::process::Command;
 use tracing::{debug, error, warn};
 use uuid::Uuid;
 
+use crate::dialogue::{DialogueMessage, DialogueMessageType, log_dialogue_message};
 use crate::status::{FlockStatus, SegmentState, SegmentStatus};
 
 /// Configuration for flock mode
@@ -619,6 +621,54 @@ impl FlockMode {
     }
 }
 
+/// Parse and log a dialogue message from worker output
+///
+/// Format: [GB_DIALOGUE] TYPE: message content
+/// Example: [GB_DIALOGUE] ANALYSIS: Monica detected architectural concerns in the auth module
+fn parse_and_log_dialogue(
+    session_id: &str,
+    segment_id: &str,
+    line: &str,
+    persona: Persona,
+    role: AgentRole,
+) {
+    // Strip the [GB_DIALOGUE] prefix
+    let content = line.trim_start_matches("[GB_DIALOGUE]").trim();
+
+    // Parse message type (e.g., "ANALYSIS:", "REVIEW:", etc.)
+    let (message_type, message_content) = if let Some((type_str, rest)) = content.split_once(':') {
+        let msg_type = match type_str.trim().to_uppercase().as_str() {
+            "ANALYSIS" => DialogueMessageType::Analysis,
+            "REVIEW" => DialogueMessageType::Review,
+            "RESPONSE" => DialogueMessageType::Response,
+            "SUMMARY" => DialogueMessageType::Summary,
+            _ => DialogueMessageType::Comment,
+        };
+        (msg_type, rest.trim().to_string())
+    } else {
+        // No type prefix, treat as comment
+        (DialogueMessageType::Comment, content.to_string())
+    };
+
+    // Create agent ID from persona and segment
+    let agent_id = format!("{:?}-segment-{}", persona, segment_id).to_lowercase();
+
+    // Create and log the dialogue message
+    let dialogue_msg = DialogueMessage::new(
+        persona,
+        role,
+        agent_id,
+        message_content,
+        message_type,
+    );
+
+    if let Err(e) = log_dialogue_message(session_id, &dialogue_msg) {
+        warn!("Failed to log dialogue message: {}", e);
+    } else {
+        debug!("Logged dialogue from {:?} in segment {}", persona, segment_id);
+    }
+}
+
 /// Run a single segment worker
 async fn run_segment(
     segment_id: usize,
@@ -714,6 +764,19 @@ async fn run_segment(
                 match line {
                     Ok(Some(line)) => {
                         println!("[Segment {}] {}", segment_id, line);
+
+                        // ✨💖 Parse dialogue messages from worker output 💖✨
+                        if line.starts_with("[GB_DIALOGUE]") {
+                            if let Some(ref assignment) = segment_status.persona_assignment {
+                                parse_and_log_dialogue(
+                                    &session_id,
+                                    &segment_id.to_string(),
+                                    &line,
+                                    assignment.persona,
+                                    assignment.role,
+                                );
+                            }
+                        }
 
                         // Parse output for status updates
                         if line.contains("TURN") {
