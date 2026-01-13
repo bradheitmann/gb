@@ -152,6 +152,32 @@ We told you. We're only a little sorry.
 
 GB is a **dialectical multi-agent autocoding system** where 8 AI personas with distinct personalities collaborate (and compete) to ship high-quality code. It's G3's adversarial cooperation model cranked up to theatrical extremes.
 
+### 🎉 What's New in v0.2.0 (Phase 4: Multi-Agent Orchestration)
+
+**Session Persistence & Persona State**
+- Sessions now save and restore persona assignments
+- Resume work with the correct persona intact across restarts
+- Full state continuity for long-running multi-agent projects
+
+**Intelligent Flock Orchestration**
+- Workers spawn with correct persona assignments (`--agent <persona>`)
+- Specialist routing (Monica→architecture, Daria→security)
+- Multi-agent teams collaborate with consistent identities
+
+**Runtime Persona Switching**
+- Switch personas mid-session with `/persona <name>`
+- System prompt regenerates seamlessly
+- Token accounting updates automatically
+
+**Theatrical Inter-Agent Dialogue**
+- Emoji-prefixed dialogue format (`💅 GRETCHEN:`, `👑 REGINA:`)
+- Dual logging: human-readable `.log` + machine-parseable `.jsonl`
+- Review chain templates (full, security, quick, debugging)
+- Agent emission API: `agent.emit_analysis()`, `agent.emit_review()`
+- See `docs/EXCHANGES.md` for full implementation guide
+
+**All Phase 4 features are tested, documented, and production-ready.**
+
 The core mechanic: **Regina** (Coach) and **Gretchen** (Player) are locked in eternal competition to out-slay each other. Every code review is a dominance battle. Every PR is a flex. The tension spirals into hilarity while somehow producing excellent code.
 
 Supporting them: six specialist agents, each with their own relationship to Gen-Z slang.
