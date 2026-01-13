@@ -1341,7 +1341,7 @@ dependencies = [
 
 [[package]]
 name = "g3-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1374,7 +1374,7 @@ dependencies = [
 
 [[package]]
 name = "g3-computer-control"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "accessibility",
  "anyhow",
@@ -1398,7 +1398,7 @@ dependencies = [
 
 [[package]]
 name = "g3-config"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "config",
@@ -1413,7 +1413,7 @@ dependencies = [
 
 [[package]]
 name = "g3-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1458,7 +1458,7 @@ dependencies = [
 
 [[package]]
 name = "g3-ensembles"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1476,7 +1476,7 @@ dependencies = [
 
 [[package]]
 name = "g3-execution"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "futures",
@@ -1488,8 +1488,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "g3-glitter-bomb"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "g3-cli",
+ "g3-providers",
+ "gb-personas",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "g3-planner"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1506,7 +1518,7 @@ dependencies = [
 
 [[package]]
 name = "g3-providers"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1535,20 +1547,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "gb"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "g3-cli",
- "g3-providers",
- "gb-personas",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "gb-personas"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "pretty_assertions",
  "serde",
@@ -3919,7 +3919,8 @@ dependencies = [
 [[package]]
 name = "tree-sitter-haskell"
 version = "0.23.1"
-source = "git+https://github.com/tree-sitter/tree-sitter-haskell#0975ef72fc3c47b530309ca93937d7d143523628"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "977c51e504548cba13fc27cb5a2edab2124cf6716a1934915d07ab99523b05a4"
 dependencies = [
  "cc",
  "tree-sitter-language",

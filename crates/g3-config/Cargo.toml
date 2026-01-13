@@ -1,8 +1,14 @@
 [package]
 name = "g3-config"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "Configuration management for G3 AI coding agent"
+description = "Configuration management for G3/GB AI coding agent"
+license = "MIT"
+repository = "https://github.com/bradheitmann/gb"
+homepage = "https://github.com/bradheitmann/gb"
+keywords = ["llm", "agents", "ai", "config", "autocoding"]
+categories = ["development-tools", "config"]
+readme = "../../README.md"
 
 [dependencies]
 config = { workspace = true }

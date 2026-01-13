@@ -1,15 +1,21 @@
 [package]
 name = "g3-core"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "Core engine for G3 AI coding agent"
+description = "Core engine for G3/GB AI coding agent"
+license = "MIT"
+repository = "https://github.com/bradheitmann/gb"
+homepage = "https://github.com/bradheitmann/gb"
+keywords = ["llm", "agents", "ai", "autocoding", "dialectical"]
+categories = ["development-tools"]
+readme = "../../README.md"
 
 [dependencies]
-g3-providers = { path = "../g3-providers" }
-g3-config = { path = "../g3-config" }
-g3-execution = { path = "../g3-execution" }
-g3-computer-control = { path = "../g3-computer-control", optional = true }
-gb-personas = { path = "../gb-personas" }
+g3-providers = { path = "../g3-providers", version = "0.2.0" }
+g3-config = { path = "../g3-config", version = "0.2.0" }
+g3-execution = { path = "../g3-execution", version = "0.2.0" }
+g3-computer-control = { path = "../g3-computer-control", version = "0.2.0", optional = true }
+gb-personas = { path = "../gb-personas", version = "0.2.0" }
 tokio = { workspace = true }
 reqwest = { workspace = true }
 anyhow = { workspace = true }
@@ -39,7 +45,7 @@ tree-sitter-java = "0.23"
 tree-sitter-c = "0.23"
 tree-sitter-cpp = "0.23"
 # tree-sitter-kotlin = "0.3"  # Temporarily disabled - incompatible with tree-sitter 0.24
-tree-sitter-haskell = { git = "https://github.com/tree-sitter/tree-sitter-haskell" }
+tree-sitter-haskell = "0.23"
 tree-sitter-scheme = "0.24"
 streaming-iterator = "0.1"
 walkdir = "2.4"

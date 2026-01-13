@@ -34,16 +34,24 @@ config = "0.14"
 uuid = { version = "1.0", features = ["v4"] }
 
 [package]
-name = "gb"
+name = "g3-glitter-bomb"
 version = "0.2.0"
 edition = "2021"
 authors = ["GB Team", "G3 Team"]
-description = "✨💖 GB (G3-Glitter-Bomb) - Dialectical autocoding with MAXIMUM GLITTER 💖✨"
+description = "✨💖 GB (G3-Glitter-Bomb) - Dialectical multi-agent autocoding with theatrical personas 💖✨"
 license = "MIT"
 repository = "https://github.com/bradheitmann/gb"
+homepage = "https://github.com/bradheitmann/gb"
+documentation = "https://github.com/bradheitmann/gb#readme"
 keywords = ["llm", "agents", "ai", "cli", "autocoding"]
 categories = ["development-tools", "command-line-utilities"]
 readme = "README.md"
+exclude = [
+    ".edge-agentic/",
+    ".g3/",
+    "personas/",
+    "docs/",
+]
 
 # GB is a fork of G3 by Dhanji R. Prasanna (https://github.com/dhanji/g3)
 # Based on Block AI Research - Adversarial Cooperation in Code Synthesis
@@ -53,11 +61,11 @@ default = ["computer-control"]
 computer-control = ["g3-cli/computer-control"]
 
 [dependencies]
-g3-cli = { path = "crates/g3-cli" }
-gb-personas = { path = "crates/gb-personas" }
+g3-cli = { path = "crates/g3-cli", version = "0.2.0" }
+gb-personas = { path = "crates/gb-personas", version = "0.2.0" }
 tokio = { workspace = true }
 anyhow = { workspace = true }
-g3-providers = { path = "crates/g3-providers" }
+g3-providers = { path = "crates/g3-providers", version = "0.2.0" }
 serde_json = { workspace = true }
 
 [[bin]]

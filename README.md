@@ -265,11 +265,12 @@ cargo build --release
 ./target/release/gb --help
 ```
 
-### From crates.io (Coming Soon)
+### From crates.io
 ```bash
-cargo install gb
-# Note: You may need to manually copy libVisionBridge.dylib on macOS
-# Use install.sh instead for seamless installation
+cargo install g3-glitter-bomb
+# Installs the 'gb' binary to ~/.cargo/bin
+# Note: On macOS, you may need to manually copy libVisionBridge.dylib
+# Use install.sh instead for seamless computer-control features
 ```
 
 ---
