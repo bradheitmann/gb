@@ -309,7 +309,11 @@ mod tests {
 
         let formatted = msg.format_theatrical();
 
-        assert!(formatted.contains("💅 GRETCHEN:"));
+        // Debug: print the formatted output
+        eprintln!("Formatted output:\n{}", formatted);
+
+        // Gretchen's first emoji is 💖 not 💅 (Regina's emoji)
+        assert!(formatted.contains("💖 GRETCHEN:"), "Should contain '💖 GRETCHEN:' marker");
         assert!(formatted.contains("I implemented the feature!"));
         assert!(formatted.contains("EFFICIENCY"));
     }

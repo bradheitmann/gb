@@ -1547,6 +1547,36 @@ impl<W: UiWriter> Agent<W> {
         Ok(())
     }
 
+    /// Emit a dialogue message (for inter-agent communication)
+    ///
+    /// Messages are printed to stdout in a format that flock workers can parse:
+    /// `[GB_DIALOGUE] TYPE: message content`
+    ///
+    /// Message types: ANALYSIS, REVIEW, RESPONSE, SUMMARY, COMMENT
+    pub fn emit_dialogue(&self, message_type: &str, content: &str) {
+        println!("[GB_DIALOGUE] {}: {}", message_type.to_uppercase(), content);
+    }
+
+    /// Emit an analysis dialogue message
+    pub fn emit_analysis(&self, content: &str) {
+        self.emit_dialogue("ANALYSIS", content);
+    }
+
+    /// Emit a review dialogue message
+    pub fn emit_review(&self, content: &str) {
+        self.emit_dialogue("REVIEW", content);
+    }
+
+    /// Emit a response dialogue message
+    pub fn emit_response(&self, content: &str) {
+        self.emit_dialogue("RESPONSE", content);
+    }
+
+    /// Emit a summary dialogue message
+    pub fn emit_summary(&self, content: &str) {
+        self.emit_dialogue("SUMMARY", content);
+    }
+
     /// Initialize session ID manually (primarily for testing).
     /// This allows tests to verify session ID generation without calling execute_task,
     /// which would require an LLM provider.

@@ -1020,6 +1020,83 @@ When writing agent exchanges:
 
 ---
 
+## 🛠️ Implementation Guide
+
+### How the Dialogue System Works
+
+GB implements a theatrical inter-agent dialogue system that automatically logs exchanges in the format shown above.
+
+#### For Agent Implementations
+
+Emit dialogue messages using the Agent API:
+
+```rust
+// In your agent code
+agent.emit_analysis("The folder structure is concerning.");
+agent.emit_review("Variable names need improvement.");
+agent.emit_response("I'll refactor the naming conventions.");
+agent.emit_summary("All naming issues resolved.");
+```
+
+#### For Flock Workers
+
+Workers automatically get persona assignments. To participate in dialogue:
+
+```rust
+// Worker detects its assigned persona from environment/config
+if let Some(persona) = agent.get_persona() {
+    agent.emit_analysis("Monica here - checking architecture...");
+}
+```
+
+Output format: `[GB_DIALOGUE] TYPE: message content`
+
+#### Message Types
+
+- **ANALYSIS**: Initial observations or findings
+- **REVIEW**: Critique of another agent's work
+- **RESPONSE**: Reply to feedback or questions
+- **SUMMARY**: Final conclusions or status
+- **COMMENT**: General remarks or asides
+
+#### Review Chains
+
+Pre-configured sequences for common workflows:
+
+```rust
+use g3_ensembles::ReviewChain;
+
+// Full review: Monica → Rachel → Daria
+let chain = ReviewChain::full();
+
+// Security only: Daria
+let chain = ReviewChain::security();
+
+// Quick refactor: Rachel
+let chain = ReviewChain::quick();
+
+// Debug workflow: Phoebe → Daria
+let chain = ReviewChain::debugging();
+
+// Auto-detect from requirements
+let chain = ReviewChain::from_requirements("Run a security audit");
+```
+
+#### Dialogue Logs
+
+Logs are saved to `.g3/dialogues/<session_id>/`:
+- `dialogue.log` - Theatrical format with emoji markers (human-readable)
+- `dialogue.jsonl` - JSON Lines format (machine-parseable)
+
+Read theatrical dialogue:
+```rust
+use g3_ensembles::get_theatrical_dialogue;
+let dialogue = get_theatrical_dialogue(session_id)?;
+println!("{}", dialogue);
+```
+
+---
+
 ## 👑 Credits
 
 **GB** (G3-Glitter-Bomb) is a fork of [G3](https://github.com/dhanji/g3) by [Dhanji R. Prasanna](https://github.com/dhanji), CTO of [Block](https://block.xyz).
