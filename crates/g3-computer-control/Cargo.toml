@@ -9,6 +9,7 @@ homepage = "https://github.com/bradheitmann/gb"
 keywords = ["llm", "agents", "ai", "automation", "computer-use"]
 categories = ["development-tools", "gui"]
 readme = "../../README.md"
+exclude = ["vision-bridge/.build/"]
 
 [build-dependencies]
 # Only needed for building Swift bridge on macOS
