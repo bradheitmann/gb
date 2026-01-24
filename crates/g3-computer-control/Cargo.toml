@@ -1,6 +1,6 @@
 [package]
 name = "g3-computer-control"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Computer control (keyboard, mouse, screen) for G3/GB AI agent"
 license = "MIT"
@@ -12,7 +12,7 @@ readme = "../../README.md"
 exclude = ["vision-bridge/.build/"]
 
 [build-dependencies]
-# Only needed for building Swift bridge on macOS
+dirs = "5.0"  # For finding ~/.cargo/bin to copy dylib
 
 [dependencies]
 # Workspace dependencies

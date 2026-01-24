@@ -1341,7 +1341,7 @@ dependencies = [
 
 [[package]]
 name = "g3-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1374,7 +1374,7 @@ dependencies = [
 
 [[package]]
 name = "g3-computer-control"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "accessibility",
  "anyhow",
@@ -1382,6 +1382,7 @@ dependencies = [
  "cocoa 0.25.0",
  "core-foundation 0.10.1",
  "core-graphics 0.23.2",
+ "dirs 5.0.1",
  "fantoccini",
  "image",
  "objc",
@@ -1413,7 +1414,7 @@ dependencies = [
 
 [[package]]
 name = "g3-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1458,7 +1459,7 @@ dependencies = [
 
 [[package]]
 name = "g3-ensembles"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1501,7 +1502,7 @@ dependencies = [
 
 [[package]]
 name = "g3-planner"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "chrono",

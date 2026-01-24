@@ -61,7 +61,7 @@ default = ["computer-control"]
 computer-control = ["g3-cli/computer-control"]
 
 [dependencies]
-g3-cli = { path = "crates/g3-cli", version = "0.2.0" }
+g3-cli = { path = "crates/g3-cli", version = "0.2.1" }
 gb-personas = { path = "crates/gb-personas", version = "0.2.0" }
 tokio = { workspace = true }
 anyhow = { workspace = true }

@@ -68,6 +68,22 @@ fn main() {
         dylib_dst.display()
     );
 
+    // Also copy to ~/.cargo/bin for cargo install to work
+    if let Some(home) = dirs::home_dir() {
+        let cargo_bin = home.join(".cargo").join("bin");
+        if cargo_bin.exists() {
+            let dylib_cargo_dst = cargo_bin.join("libVisionBridge.dylib");
+            if let Err(e) = std::fs::copy(&dylib_src, &dylib_cargo_dst) {
+                println!("cargo:warning=Could not copy dylib to ~/.cargo/bin: {}", e);
+            } else {
+                println!(
+                    "cargo:warning=Also copied libVisionBridge.dylib to {}",
+                    dylib_cargo_dst.display()
+                );
+            }
+        }
+    }
+
     // Re-sign the dylib with ad-hoc signature to fix code signing issues on Apple Silicon
     // This is necessary because incremental compilation can invalidate signatures
     let codesign_status = Command::new("codesign")

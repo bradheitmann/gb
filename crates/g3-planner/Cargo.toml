@@ -1,6 +1,6 @@
 [package]
 name = "g3-planner"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Fast-discovery planner for G3/GB AI coding agent"
 license = "MIT"
@@ -12,7 +12,7 @@ readme = "../../README.md"
 
 [dependencies]
 g3-providers = { path = "../g3-providers", version = "0.2.0" }
-g3-core = { path = "../g3-core", version = "0.2.0" }
+g3-core = { path = "../g3-core", version = "0.2.1" }
 g3-config = { path = "../g3-config", version = "0.2.0" }
 serde = { workspace = true }
 serde_json = { workspace = true }
