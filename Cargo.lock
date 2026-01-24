@@ -1490,7 +1490,7 @@ dependencies = [
 
 [[package]]
 name = "g3-glitter-bomb"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "g3-cli",
