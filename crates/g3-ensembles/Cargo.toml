@@ -1,6 +1,6 @@
 [package]
 name = "g3-ensembles"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Multi-agent ensemble orchestration for G3/GB AI coding agent"
 license = "MIT"
@@ -11,9 +11,9 @@ categories = ["development-tools"]
 readme = "../../README.md"
 
 [dependencies]
-g3-core = { path = "../g3-core", version = "0.2.1" }
-g3-config = { path = "../g3-config", version = "0.2.0" }
-gb-personas = { path = "../gb-personas", version = "0.2.0" }
+g3-core = { path = "../g3-core", version = "0.2.2" }
+g3-config = { path = "../g3-config", version = "0.2.2" }
+gb-personas = { path = "../gb-personas", version = "0.2.2" }
 clap = { workspace = true }
 tokio = { workspace = true }
 anyhow = { workspace = true }

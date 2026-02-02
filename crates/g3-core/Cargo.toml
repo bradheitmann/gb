@@ -1,6 +1,6 @@
 [package]
 name = "g3-core"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Core engine for G3/GB AI coding agent"
 license = "MIT"
@@ -11,11 +11,11 @@ categories = ["development-tools"]
 readme = "../../README.md"
 
 [dependencies]
-g3-providers = { path = "../g3-providers", version = "0.2.0" }
-g3-config = { path = "../g3-config", version = "0.2.0" }
-g3-execution = { path = "../g3-execution", version = "0.2.0" }
-g3-computer-control = { path = "../g3-computer-control", version = "0.2.1", optional = true }
-gb-personas = { path = "../gb-personas", version = "0.2.0" }
+g3-providers = { path = "../g3-providers", version = "0.2.2" }
+g3-config = { path = "../g3-config", version = "0.2.2" }
+g3-execution = { path = "../g3-execution", version = "0.2.2" }
+g3-computer-control = { path = "../g3-computer-control", version = "0.2.2", optional = true }
+gb-personas = { path = "../gb-personas", version = "0.2.2" }
 tokio = { workspace = true }
 reqwest = { workspace = true }
 anyhow = { workspace = true }

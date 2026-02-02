@@ -35,7 +35,7 @@ uuid = { version = "1.0", features = ["v4"] }
 
 [package]
 name = "g3-glitter-bomb"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["GB Team", "G3 Team"]
 description = "✨💖 GB (G3-Glitter-Bomb) - Dialectical multi-agent autocoding with theatrical personas 💖✨"

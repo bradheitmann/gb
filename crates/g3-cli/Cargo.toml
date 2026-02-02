@@ -1,6 +1,6 @@
 [package]
 name = "g3-cli"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "CLI interface for G3/GB AI coding agent"
 license = "MIT"
@@ -15,13 +15,13 @@ default = ["computer-control"]
 computer-control = ["g3-core/computer-control"]
 
 [dependencies]
-g3-core = { path = "../g3-core", version = "0.2.1" }
-g3-config = { path = "../g3-config", version = "0.2.0" }
-g3-planner = { path = "../g3-planner", version = "0.2.1" }
-g3-providers = { path = "../g3-providers", version = "0.2.0" }
-gb-personas = { path = "../gb-personas", version = "0.2.0" }
+g3-core = { path = "../g3-core", version = "0.2.2" }
+g3-config = { path = "../g3-config", version = "0.2.2" }
+g3-planner = { path = "../g3-planner", version = "0.2.2" }
+g3-providers = { path = "../g3-providers", version = "0.2.2" }
+gb-personas = { path = "../gb-personas", version = "0.2.2" }
 clap = { workspace = true }
-g3-ensembles = { path = "../g3-ensembles", version = "0.2.1" }
+g3-ensembles = { path = "../g3-ensembles", version = "0.2.2" }
 tokio = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }

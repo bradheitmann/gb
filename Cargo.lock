@@ -1341,7 +1341,7 @@ dependencies = [
 
 [[package]]
 name = "g3-cli"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1374,7 +1374,7 @@ dependencies = [
 
 [[package]]
 name = "g3-computer-control"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "accessibility",
  "anyhow",
@@ -1399,7 +1399,7 @@ dependencies = [
 
 [[package]]
 name = "g3-config"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "config",
@@ -1414,7 +1414,7 @@ dependencies = [
 
 [[package]]
 name = "g3-core"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1459,7 +1459,7 @@ dependencies = [
 
 [[package]]
 name = "g3-ensembles"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1477,7 +1477,7 @@ dependencies = [
 
 [[package]]
 name = "g3-execution"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "futures",
@@ -1490,7 +1490,7 @@ dependencies = [
 
 [[package]]
 name = "g3-glitter-bomb"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "g3-cli",
@@ -1502,7 +1502,7 @@ dependencies = [
 
 [[package]]
 name = "g3-planner"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1519,7 +1519,7 @@ dependencies = [
 
 [[package]]
 name = "g3-providers"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1549,7 +1549,7 @@ dependencies = [
 
 [[package]]
 name = "gb-personas"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "pretty_assertions",
  "serde",

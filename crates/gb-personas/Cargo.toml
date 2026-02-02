@@ -1,6 +1,6 @@
 [package]
 name = "gb-personas"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2021"
 description = "✨💖 Theatrical personas for GB (G3-Glitter-Bomb), a fork of G3 dialectical autocoding 💖✨"
 license = "MIT"

@@ -1,6 +1,6 @@
 [package]
 name = "g3-execution"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2021"
 description = "Code execution engine for G3/GB AI agent"
 license = "MIT"

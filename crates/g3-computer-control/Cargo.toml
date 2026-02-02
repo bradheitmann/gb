@@ -1,6 +1,6 @@
 [package]
 name = "g3-computer-control"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Computer control (keyboard, mouse, screen) for G3/GB AI agent"
 license = "MIT"
