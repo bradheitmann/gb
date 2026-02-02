@@ -22,7 +22,9 @@ G3 is elegant. G3 is minimal. G3 is serious computer science.
 
 GB is... still that. But with **significantly more glitter**.
 
-We took G3's clean dialectical architecture and asked ourselves: *"What if the agents had personalities? What if those personalities were inspired by Mean Girls, Friends, Daria, and Fleabag? What if they all used Gen-Z slang at varying levels of mastery? What if one of them was OBSESSED with making everything pink?"*
+We took G3's clean dialectical architecture and asked ourselves: *"What if this wasn't two agents, but eight? What if they were like "Mean Girls meets Friends meets Daria meets Fleabag meets every Princess in the history of ever? What if they all used Gen-Z slang at varying levels of mastery? What if one of them was OBSESSED with making everything pink?"*
+
+In summary -- what if G3, like, SLAYED, or whatever.
 
 The answer is GB. We're not sorry. Actually, we're a little sorry. But mostly not.
 
