@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/verify-edge-agentic-compliance.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-intelligence-inbox.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/enforce-no-verify-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-linear-api-gate.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/auto-create-linear-issue.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/generate-planning-status.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
