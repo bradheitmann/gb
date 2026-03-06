@@ -87,6 +87,7 @@ active=""
 blocked=""
 failed=""
 done_count=0
+backlog_count=0
 total_count=0
 
 for state_dir in todo active blocked failed done backlog; do
@@ -132,6 +133,9 @@ for state_dir in todo active blocked failed done backlog; do
                 ;;
             done)
                 done_count=$((done_count + 1))
+                ;;
+            backlog)
+                backlog_count=$((backlog_count + 1))
                 ;;
         esac
     done
@@ -373,7 +377,7 @@ else
     printf '(no epics found)\n' >> "$STATUS_FILE"
 fi
 
-printf '\nTotal slices: %d/%d done | %d active | %d blocked | %d failed\n' \
-    "$done_count" "$total_count" "$active_count" "$blocked_count" "$failed_count" >> "$STATUS_FILE"
+printf '\nTotal slices: %d/%d done | %d active | %d blocked | %d failed | %d backlog\n' \
+    "$done_count" "$total_count" "$active_count" "$blocked_count" "$failed_count" "$backlog_count" >> "$STATUS_FILE"
 
 exit 0
